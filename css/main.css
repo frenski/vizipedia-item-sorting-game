@@ -9,6 +9,60 @@
      here so the HUD can clear a notch or a gesture bar. */
   --safe-top: 0px;
   --safe-bottom: 0px;
+
+  /* ── DOM chrome tokens ───────────────────────────────────────────────
+     A theme in css/themes/<name>.css remaps these to restyle the HUD, the
+     popups and the buttons without touching this file. */
+  --font-body:      'Nunito', Arial, sans-serif;
+  --font-display:   'Nunito', Arial, sans-serif;
+
+  --ui-bg:          #14182b;
+  --ui-text:        #ffffff;
+
+  --pill-bg:        #ffffff;
+  --pill-text:      #7f2c22;
+  --pill-shadow:    0 4px 0 0 #ffc533;
+  --pill-radius:    100px;
+  --life-full:      #ff360e;
+  --life-gone:      #b89571;
+
+  --chip-bg:        rgba(255,255,255,0.14);
+  --chip-text:      #ffffff;
+
+  --popup-bg:       #ff8f0e;
+  --popup-text:     #ffffff;
+  --popup-shadow:   0 8px 0 0 #d17000;
+  --popup-radius:   24px;
+  --popup-title-shadow: 0 2px 8px rgba(177, 95, 0, .8);
+
+  --btn-bg:          #038b9d;
+  --btn-bg-hover:    #00a5bb;
+  --btn-shadow:      0 4px 0 0 #03535e;
+  --btn-shadow-hover:0 1px 0 0 #03535e;
+  --btn-radius:      100%;
+
+  /* ── Canvas tokens ───────────────────────────────────────────────────
+     CSS cannot reach the canvas, so the engine reads these off :root (see
+     THEME in js/main.js) and paints the lane, the cards and the bag with
+     them. A game's own `theme` block in game-config.json still wins over
+     whatever the stylesheet says. */
+  --game-font-body:     'Nunito', Arial, sans-serif;
+  --game-font-display:  'Nunito', Arial, sans-serif;
+  --game-background:    #14182b;
+  --game-background-to: #2a2145;
+  --game-lane:          rgba(255,255,255,0.06);
+  --game-card:          #ffffff;
+  --game-card-text:     #26262e;
+  --game-card-taken:    #ffe9b8;
+  --game-bare-text:     #ffffff;
+  --game-accent:        #ffc533;
+  --game-bag:           #e8b45f;
+  --game-bag-dark:      #b5793a;
+  --game-tray-slot:     rgba(255,255,255,0.28);
+  --game-tray-text:     #ffffff;
+  --game-danger:        #ff4d4d;
+  --game-card-radius:   20;
+  --game-pixelated:     0;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,9 +75,9 @@ html, body {
 }
 
 body {
-  font-family: 'Nunito', Arial, sans-serif;
-  background: #14182b;
-  color: #fff;
+  font-family: var(--font-body);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -48,7 +102,7 @@ body {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  color: #fff;
+  color: var(--ui-text);
   font-size: 20px;
   text-align: center;
   padding: 0 24px;
@@ -58,10 +112,10 @@ body {
 #scoreBoard, #livesBoard, #progressBoard {
   position: absolute;
   top: calc(14px + var(--safe-top));
-  background: #fff;
-  border-radius: 100px;
-  box-shadow: 0 4px 0 0 #ffc533;
-  color: #7f2c22;
+  background: var(--pill-bg);
+  border-radius: var(--pill-radius);
+  box-shadow: var(--pill-shadow);
+  color: var(--pill-text);
   z-index: 10;
   font-weight: 900;
   line-height: 1;
@@ -89,9 +143,9 @@ body {
   transform: translateX(-50%);
   padding: 9px 16px;
   font-size: 14px;
-  background: rgba(255,255,255,0.14);
+  background: var(--chip-bg);
   box-shadow: none;
-  color: #fff;
+  color: var(--chip-text);
   letter-spacing: .04em;
 }
 
@@ -103,7 +157,8 @@ body {
   gap: 2px;
 }
 
-#livesBoard .life { display: inline-flex; }
+#livesBoard .life { display: inline-flex; color: var(--life-full); }
+#livesBoard .life.gone { color: var(--life-gone); }
 
 .hud-btn {
   position: absolute;
@@ -112,14 +167,48 @@ body {
   width: 38px; height: 38px;
   border: none;
   border-radius: 50%;
-  background: rgba(255,255,255,0.14);
-  color: #fff;
+  background: var(--chip-bg);
+  color: var(--chip-text);
   font-size: 16px;
   cursor: pointer;
   z-index: 10;
   line-height: 1;
 }
 .hud-btn:hover { background: rgba(255,255,255,0.24); }
+
+/* ── Intro ───────────────────────────────────────── */
+/* The scoreboard is empty and meaningless until the round starts. The mute
+   button stays — an intro can have its own music. */
+/* !important because updateHUD() writes an inline display on the counter
+   pill, and an inline style beats a plain rule. This is a state override,
+   which is what !important is actually for. */
+body.intro-playing #scoreBoard,
+body.intro-playing #progressBoard,
+body.intro-playing #livesBoard { display: none !important; }
+
+/* ── Intro skip ──────────────────────────────────── */
+#introSkip {
+  display: none;              /* main.js shows it while an intro plays */
+  position: absolute;
+  right: 16px;
+  bottom: calc(18px + var(--safe-bottom));
+  z-index: 15;
+  padding: 9px 20px;
+  border: none;
+  border-radius: var(--pill-radius);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: .75;
+  transition: opacity .2s, background .2s;
+}
+#introSkip:hover { opacity: 1; background: rgba(255,255,255,0.24); }
+html.rtl #introSkip { right: auto; left: 16px; }
 
 /* ── Popups ──────────────────────────────────────── */
 .popupGeneral {
@@ -132,17 +221,18 @@ body {
   max-height: 86vh;
   overflow-y: auto;
   padding: 26px 26px 30px;
-  border-radius: 24px;
-  background: #ff8f0e;
-  box-shadow: 0 8px 0 0 #d17000;
-  color: #fff;
+  border-radius: var(--popup-radius);
+  background: var(--popup-bg);
+  box-shadow: var(--popup-shadow);
+  color: var(--popup-text);
   text-align: center;
 }
 
 .popupGeneral h2 {
   font-size: clamp(26px, 6vw, 40px);
   font-weight: 900;
-  text-shadow: 0 2px 8px rgba(177, 95, 0, .8);
+  font-family: var(--font-display);
+  text-shadow: var(--popup-title-shadow);
 }
 
 .popupGeneral h3 {
@@ -227,9 +317,9 @@ body {
 .button-circle {
   margin-top: 22px;
   border: none;
-  border-radius: 100%;
-  background: #038b9d;
-  box-shadow: 0 4px 0 0 #03535e;
+  border-radius: var(--btn-radius);
+  background: var(--btn-bg);
+  box-shadow: var(--btn-shadow);
   padding: 18px 22px;
   cursor: pointer;
   transition: all .2s ease;
@@ -237,9 +327,9 @@ body {
 }
 
 .button-circle:hover {
-  box-shadow: 0 1px 0 0 #03535e;
+  box-shadow: var(--btn-shadow-hover);
   transform: translateY(3px);
-  background: #00a5bb;
+  background: var(--btn-bg-hover);
 }
 
 /* ── RTL ─────────────────────────────────────────── */

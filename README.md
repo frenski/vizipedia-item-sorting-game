@@ -57,6 +57,14 @@ one fact that is fair to hand over for free: how full it is. The contents
 appear only when the player is over capacity and genuinely cannot choose
 without seeing the alternatives.
 
+Each row in that grid shows the item's **icon beside its `short` label** —
+the player picked these things up as pictures, so matching the artwork is
+faster than reading six labels. A label too long for its cell is cut at a
+word and marked with an ellipsis. With artwork in play the grid drops to two
+columns below 560px wide rather than 360px, because an icon takes about 38%
+of a cell and three columns of them leave the label a column of single
+words.
+
 ---
 
 ## game-config.json
@@ -108,6 +116,29 @@ that closes as the bag fills and turns `danger` red on the last slot.
 | `acceleration` | `0` | each item is this fraction faster than the last; compounds over the whole session |
 | `minItemDuration` | `0.7` | floor, so acceleration can't outrun a human |
 | `gap` | `0.25` | seconds of empty lane between items |
+| `dwell` | `0.65` | how much of the crossing speed moves out of the middle and into the ends, 0–1 |
+
+### Dwell
+
+An item does not cross at a flat speed. It sweeps in from the edge, slows
+through the centre where it can actually be read, then accelerates away:
+
+```
+e(p) = p + a·sin(2πp)/2π        e'(p) = 1 + a·cos(2πp)
+```
+
+Velocity is `1+a` at the edges and `1−a` at the centre, so `dwell` is
+literally how much speed is moved out of the middle. The crossing still takes
+exactly `itemDuration` — `e(0)=0`, `e(0.5)=0.5` and `e(1)=1`, so the item
+reaches the centre of the screen at precisely half its time and nothing else
+about the round's pacing changes. `e'` is continuous, so there is no kick
+where the phases meet, and `e' ≥ 0` for any `dwell ≤ 1`, so the item can never
+stall outright or drift backwards.
+
+At the default `0.65`, an item spends **54%** of its life in the middle third
+of the screen against 33% on a flat scroll — about 60% more reading time for
+the same clock. Set `dwell: 0` for the old linear scroll; `1` brings the item
+to a dead stop dead centre.
 
 At `itemDuration: 2.4` and `acceleration: 0.03`, item 1 gets 2.40 s, item 10
 gets 1.82 s, item 30 gets 0.99 s, and from item ~37 on everything sits at the
@@ -149,7 +180,7 @@ on it.
 | Key | Meaning |
 |---|---|
 | `content` | the wording on the card, and in the end-of-round list |
-| `short` | the shorter wording used in the swap grid (falls back to `content`) |
+| `short` | the shorter wording used in the swap grid (falls back to `content`); the item's `image` is drawn beside it |
 | `pairId` | two items sharing one are the same thing said twice |
 | `correct` | `true` / `false` for right-and-wrong games; omit where there is no right answer |
 | `points` | overrides the `scoring` table for this item |
@@ -254,7 +285,240 @@ record: the rule is about the decision at the moment it was made.
 
 ---
 
+## Intro (animated prestory)
+
+Optional. With no `intro` block the game opens on the start card exactly as
+before; with one, a sequence of scenes plays first — one line of text and a
+visual each — and the start card follows when it ends.
+
+```json
+"intro": {
+  "sceneDuration": 3.2,
+  "transition": "fade",
+  "autoAdvance": true,
+  "skippable": true,
+  "skipStartCard": false,
+  "music": "audio/intro.mp3",
+  "scenes": [
+    { "text": "It's 2am. Everyone is asleep.",
+      "image": "zzz.png", "motion": "pulse" },
+
+    { "text": "Except you.",
+      "sprite": { "url": "red-eyes.png", "frames": 6, "fps": 8 } },
+
+    { "text": "You're up for something.",
+      "image": "brain.png", "motion": "float" },
+
+    { "text": "It's your choice — but you get some help.",
+      "images": ["a.png", "b.png", "c.png"], "motion": "float" },
+
+    { "text": "Nova is here to help you.",
+      "sprite": { "url": "nova.png", "frames": 8, "fps": 10 },
+      "transition": "zoom", "duration": 4 }
+  ]
+}
+```
+
+### A scene
+
+| Key | Meaning |
+|---|---|
+| `text` | the one line, wrapped and centred |
+| `image` | a single still icon, from `assets/<gameId>/` |
+| `images` | several icons in a row, each drifting on its own phase |
+| `sprite` | a sheet played on a loop — either `{ "atlas": "folder/sprite.json" }` or `{ "url", "frames", "fps" }` (see below) |
+| `motion` | `pulse` \| `float` \| `spin` \| `shake` \| `none` — continuous, on top of the transition |
+| `transition` | `fade` \| `slide` \| `zoom` — how the scene arrives and leaves |
+| `duration` | seconds, overriding `sceneDuration` |
+| `sound` | played when the scene starts |
+| `reveal` | `none` (default) \| `rush` \| `elastic` — how the visuals arrive |
+
+### `reveal: "rush"`
+
+One image at a time, out of the depth and past the camera. Each comes up
+**from almost nothing at zero opacity**, accelerates toward the viewer,
+**punches through its full size** — filling the frame — holds there, then
+keeps growing and fades out as it passes. The next is already rising behind
+it, so the handover happens *through* the departing one.
+
+```json
+{ "text": "Scupid, Slaten and Scorny are here to help you.",
+  "images": ["Scupid.png", "Slaten.png", "Scorny.png"],
+  "reveal": "rush",
+  "revealDuration": 0.7, "hold": 0.4, "exitDuration": 0.5,
+  "revealScale": 0.05, "exitScale": 3.4,
+  "motion": "float", "duration": 4.8 }
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `revealDuration` | `0.65` | seconds from a speck to full size |
+| `hold` | `0.35` | seconds at full size before it leaves |
+| `exitDuration` | `0.45` | seconds to blow past and fade out |
+| `revealScale` | `0.06` | the size it starts at, as a fraction of full |
+| `exitScale` | `3.2` | how far past full size it grows on the way out |
+| `bang` | `0.16` | how far it overshoots on arrival |
+| `stagger` | `revealDuration + hold` | seconds between each one starting; the default has the next begin exactly as this one starts to leave |
+| `holdLast` | `true` | the final image stays instead of flying off and leaving the scene empty |
+
+The approach grows **exponentially, not linearly** — something moving at a
+steady speed toward a camera gains apparent size that way, and it is what
+makes it read as distance rather than as a scale animation. The travel
+reaches full size at 78% of `revealDuration`; the remainder is the overshoot,
+so the punch lands *at arrival* where it can be seen rather than while the
+image is still small. Both halves meet at exactly 1, so there is no seam.
+
+Images are painted in depth order — the one leaving is nearest the camera,
+the one arriving is furthest — so the newcomer is revealed through the
+departing one as it fades.
+
+### `reveal: "elastic"`
+
+Each image drops in **oversize and transparent**, fading up as it shrinks,
+overshooting its mark and ringing down onto it — a spring landing rather than
+a fade. With several images they arrive one after another, `stagger` seconds
+apart, so a line-up assembles itself instead of appearing all at once.
+
+```json
+{ "text": "Scupid, Slaten and Scorny are here to help you.",
+  "images": ["Scupid.png", "Slaten.png", "Scorny.png"],
+  "reveal": "elastic", "stagger": 0.3, "revealDuration": 0.8, "revealScale": 2.6,
+  "motion": "float", "duration": 5 }
+```
+
+At those numbers an image starts at 2.6×, swings down through 0.42×, springs
+back through 1.14× and settles by about a third of the way in; the third one
+has landed 1.4s into a 5s scene. The fade finishes well before the spring, so
+the bounce is watched rather than faded through.
+
+`motion` takes over the moment an image settles, and is **clocked from its own
+landing** — so the drift starts from zero instead of snapping to whatever phase
+the scene clock had reached, and a staggered row ends up naturally out of step.
+
+Use it for a line-up that assembles itself; use `rush` for one at a time.
+
+Leave `reveal` off and the visuals are simply present, carried in by the scene
+`transition` — which is what every other scene does.
+
+Pair it with `transition: "fade"` rather than `"zoom"`: a zoom on the whole
+scene fights the per-image spring.
+
+### Sprite sheets
+
+Two ways to describe one.
+
+**An atlas** — the Aseprite / ludo.ai JSON that most exporters emit:
+
+```json
+"sprite": { "atlas": "sprite-annoyed-face/sprite.json" }
+```
+
+The JSON gives a rect and a duration per frame, so the sheet can be laid out
+in **any grid** — a 3×3 of nine frames is no different from a strip — and the
+timing comes from the file, including uneven frames. Frames are ordered by
+their keys, which exporters zero-pad.
+
+The sheet itself is taken to be **`sprite.png` beside the JSON**. These files
+carry a `meta.image` naming the sheet, but exporters fill it with a working
+filename that often no longer exists (it is wrong in every atlas here), so it
+is ignored. For a sheet with another name, add `"url": "path/to/sheet.png"`
+next to `atlas`. An `fps` next to `atlas` overrides the file's own timing,
+for retiming art without re-exporting it.
+
+**A plain strip** — no JSON, one row of equal cells:
+
+```json
+"sprite": { "url": "eyes.png", "frames": 6, "fps": 8 }
+```
+
+`frameWidth` is only needed when the strip has padding or trailing space —
+otherwise it is the image width divided by `frames`.
+
+A broken or missing atlas is logged and the scene falls back to its line
+alone, rather than taking the intro down.
+
+> Serving note: a sprite folder has to be readable by the web server.
+> Folders arriving at `700` (`drwx------`) return 403 — `chmod 755` the
+> folder and `644` its files.
+
+### The sequence
+
+| Key | Default | Meaning |
+|---|---|---|
+| `sceneDuration` | `3.2` | seconds a scene holds |
+| `transition` | `"fade"` | default for every scene |
+| `motion` | `"float"` | default for every scene |
+| `autoAdvance` | `true` | `false` waits for a tap on every scene |
+| `skippable` | `true` | shows the Skip button |
+| `skipStartCard` | `false` | `true` drops straight into play instead of showing the start card |
+| `music` | `null` | looped under the whole intro, stopped when it ends |
+
+A tap, click, Space, Enter or → advances; Escape or Skip ends the whole
+sequence. Advancing early jumps to the start of the current scene's exit, so
+the transition still plays rather than cutting. The line fades in a beat after
+its picture. Progress dots sit at the bottom, and the score, counter and
+hearts are hidden for the duration — an empty scoreboard around a title
+sequence reads as a bug.
+
+**A scene with no artwork still plays**, with its line centred instead of sat
+under a picture. So the text and timing can be written and reviewed before any
+assets exist, and the art dropped in afterwards without touching anything else.
+
+The scenes are drawn on the canvas, not in the DOM: sprite frames need exact
+control and the motions are two lines of trig each, so it reuses the loader,
+the frame loop and the theme's colours and fonts. The trade-off is that the
+intro text is canvas text — a theme restyles it through `--game-font-display`
+and `--game-bare-text` rather than with a CSS rule.
+
 ## Look
+
+### Themes
+
+A game picks a skin the same way the platformer does — a top-level `theme`
+naming a file in `css/themes/`:
+
+```json
+"theme": "neon-pixel",
+"fonts": [
+  "https://fonts.googleapis.com/css2?family=DotGothic16&family=Space+Mono:wght@400;700&display=swap"
+]
+```
+
+That one file restyles **both halves** of the UI:
+
+* the **DOM chrome** — HUD pills, popups, buttons, hearts — as ordinary CSS
+  overriding `css/main.css`, which declares everything as tokens
+  (`--popup-bg`, `--pill-shadow`, `--btn-bg`, `--life-full`, …);
+* the **canvas**, which CSS cannot reach, through `--game-*` custom
+  properties on `:root` that the engine reads at boot. Every key of the
+  `theme` block below has one: `background` → `--game-background`,
+  `cardText` → `--game-card-text`, and so on, plus `--game-font-body`,
+  `--game-font-display`, `--game-card-radius` and `--game-pixelated`
+  (`1` for nearest-neighbour scaling on pixel art).
+
+`fonts` is a list of stylesheet URLs injected before the first frame — a
+skin's webfonts. The theme loads before anything is measured or painted, so
+the first card is wrapped against the real face.
+
+**Precedence**, lowest to highest: the built-in defaults, then the theme
+stylesheet, then the game's own overrides. So a skin can be retuned per game
+without forking it:
+
+```json
+"theme": "neon-pixel",
+"themeOverrides": { "accent": "#7ee08a" }
+```
+
+`theme` is polymorphic for compatibility: a **string** names a stylesheet, an
+**object** is inline colour overrides — exactly what this engine took before
+skins existed, and still the right thing for a one-off palette. A game using
+the object form needs no changes and loads no extra stylesheet.
+
+`neon-pixel` ships with the engine: near-black violet, hot pink, arcade type,
+squared-off corners and glows instead of hard drop shadows — built for games
+whose artwork is pixel art.
+
+### Colours
 
 ```json
 "backgroundImage": "background.jpg",
@@ -265,7 +529,10 @@ record: the rule is about the decision at the moment it was made.
   "accent": "#ffc533",
   "bag": "#e8b45f", "bagDark": "#b5793a",
   "traySlot": "rgba(255,255,255,0.28)",
-  "trayText": "#ffffff", "danger": "#ff4d4d"
+  "trayText": "#ffffff", "danger": "#ff4d4d",
+  "fontBody": "'Nunito', Arial, sans-serif",
+  "fontDisplay": "'Nunito', Arial, sans-serif",
+  "cardRadius": 20, "pixelated": false
 }
 ```
 
@@ -273,6 +540,11 @@ With no `backgroundImage` the two `background` colours make a gradient.
 `bag` / `bagDark` colour the procedural case and `traySlot` its handle — all
 three are ignored once `tray.image` is set. The swap grid is three columns
 wide, dropping to two on a narrow phone or when `tray.capacity` is 4 or less.
+
+`fontBody` / `fontDisplay` set the canvas type (captions and toasts; titles
+and the bag label). `cardRadius` is the plate's corner radius, `pixelated`
+turns off image smoothing. All five theme entries below are also settable
+from a skin as `--game-*` properties.
 
 ## Audio
 

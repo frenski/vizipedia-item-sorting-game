@@ -30,8 +30,8 @@ const gameId     = (typeof GAME_ID !== 'undefined') ? GAME_ID : locHash.id;
 const ASSET_BASE = `assets/${gameId}/`;
 
 /* ── Heart markup, shared with the rest of the game family ── */
-const lifeLeftHtml = '<span class="life"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="22" viewBox="0 0 41 35" fill="none"><path d="M40.9661 10.5893V11.8724C40.9429 11.9485 40.9131 12.0245 40.9031 12.1006C40.5486 14.7859 39.6806 17.2927 38.2791 19.611C35.5293 24.1483 31.8815 27.8555 27.6242 30.984C25.961 32.2076 24.2018 33.2758 22.2271 33.9438C21.0543 34.3407 19.8881 34.3738 18.7252 33.9505C18.0096 33.6892 17.2939 33.418 16.6181 33.0708C13.7125 31.576 11.1912 29.552 8.84882 27.2999C6.15526 24.7072 3.77314 21.8664 2.03376 18.5329C0.903991 16.3667 0.112158 14.0749 0.00945215 11.6244C-0.2059 6.4918 3.27949 1.86519 8.32535 0.482836C9.12049 0.264568 9.94546 0.15874 10.7572 0H12.364C12.4932 0.0264566 12.6224 0.0628363 12.7517 0.0793717C15.7136 0.420001 18.2249 1.65354 20.2525 3.84944C20.3188 3.92219 20.4016 3.98503 20.4811 4.05779C22.0847 2.23889 24.0295 1.02189 26.3486 0.423305C27.0842 0.234802 27.8429 0.142202 28.5916 0.00330526H30.1985C30.6424 0.079368 31.0897 0.155432 31.5337 0.231494C36.2151 1.05165 39.9059 4.71259 40.7573 9.36895C40.8302 9.77572 40.8965 10.1825 40.9661 10.5893Z" fill="#FF360E"/></svg></span>';
-const lifeGoneHtml = '<span class="life gone"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="22" viewBox="0 0 41 35" fill="none"><path d="M40.9661 10.5893V11.8724C40.9429 11.9485 40.9131 12.0245 40.9031 12.1006C40.5486 14.7859 39.6806 17.2927 38.2791 19.611C35.5293 24.1483 31.8815 27.8555 27.6242 30.984C25.961 32.2076 24.2018 33.2758 22.2271 33.9438C21.0543 34.3407 19.8881 34.3738 18.7252 33.9505C18.0096 33.6892 17.2939 33.418 16.6181 33.0708C13.7125 31.576 11.1912 29.552 8.84882 27.2999C6.15526 24.7072 3.77314 21.8664 2.03376 18.5329C0.903986 16.3667 0.112158 14.0749 0.00945217 11.6244C-0.2059 6.4918 3.27948 1.86519 8.32534 0.482836C9.12049 0.264568 9.94546 0.15874 10.7572 0H12.364C12.4932 0.0264566 12.6225 0.0628363 12.7517 0.0793717C15.7136 0.420001 18.2249 1.65354 20.2525 3.84944C20.3188 3.92219 20.4016 3.98503 20.4811 4.05779C22.0847 2.23889 24.0295 1.02189 26.3486 0.423305C27.0842 0.234802 27.8429 0.142202 28.5916 0.00330526H30.1985C30.6424 0.079368 31.0897 0.155432 31.5336 0.231494C36.2151 1.05165 39.9059 4.71259 40.7573 9.36895C40.8302 9.77572 40.8965 10.1825 40.9661 10.5893Z" fill="#B89571"/></svg></span>';
+const lifeLeftHtml = '<span class="life"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="22" viewBox="0 0 41 35" fill="none"><path d="M40.9661 10.5893V11.8724C40.9429 11.9485 40.9131 12.0245 40.9031 12.1006C40.5486 14.7859 39.6806 17.2927 38.2791 19.611C35.5293 24.1483 31.8815 27.8555 27.6242 30.984C25.961 32.2076 24.2018 33.2758 22.2271 33.9438C21.0543 34.3407 19.8881 34.3738 18.7252 33.9505C18.0096 33.6892 17.2939 33.418 16.6181 33.0708C13.7125 31.576 11.1912 29.552 8.84882 27.2999C6.15526 24.7072 3.77314 21.8664 2.03376 18.5329C0.903991 16.3667 0.112158 14.0749 0.00945215 11.6244C-0.2059 6.4918 3.27949 1.86519 8.32535 0.482836C9.12049 0.264568 9.94546 0.15874 10.7572 0H12.364C12.4932 0.0264566 12.6224 0.0628363 12.7517 0.0793717C15.7136 0.420001 18.2249 1.65354 20.2525 3.84944C20.3188 3.92219 20.4016 3.98503 20.4811 4.05779C22.0847 2.23889 24.0295 1.02189 26.3486 0.423305C27.0842 0.234802 27.8429 0.142202 28.5916 0.00330526H30.1985C30.6424 0.079368 31.0897 0.155432 31.5337 0.231494C36.2151 1.05165 39.9059 4.71259 40.7573 9.36895C40.8302 9.77572 40.8965 10.1825 40.9661 10.5893Z" fill="currentColor"/></svg></span>';
+const lifeGoneHtml = '<span class="life gone"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="22" viewBox="0 0 41 35" fill="none"><path d="M40.9661 10.5893V11.8724C40.9429 11.9485 40.9131 12.0245 40.9031 12.1006C40.5486 14.7859 39.6806 17.2927 38.2791 19.611C35.5293 24.1483 31.8815 27.8555 27.6242 30.984C25.961 32.2076 24.2018 33.2758 22.2271 33.9438C21.0543 34.3407 19.8881 34.3738 18.7252 33.9505C18.0096 33.6892 17.2939 33.418 16.6181 33.0708C13.7125 31.576 11.1912 29.552 8.84882 27.2999C6.15526 24.7072 3.77314 21.8664 2.03376 18.5329C0.903986 16.3667 0.112158 14.0749 0.00945217 11.6244C-0.2059 6.4918 3.27948 1.86519 8.32534 0.482836C9.12049 0.264568 9.94546 0.15874 10.7572 0H12.364C12.4932 0.0264566 12.6225 0.0628363 12.7517 0.0793717C15.7136 0.420001 18.2249 1.65354 20.2525 3.84944C20.3188 3.92219 20.4016 3.98503 20.4811 4.05779C22.0847 2.23889 24.0295 1.02189 26.3486 0.423305C27.0842 0.234802 27.8429 0.142202 28.5916 0.00330526H30.1985C30.6424 0.079368 31.0897 0.155432 31.5336 0.231494C36.2151 1.05165 39.9059 4.71259 40.7573 9.36895C40.8302 9.77572 40.8965 10.1825 40.9661 10.5893Z" fill="currentColor"/></svg></span>';
 
 /* ── Boot cover ──────────────────────────────────────────────────────
    index.html paints #boot over everything before any of this runs. It
@@ -61,6 +61,10 @@ const DEFAULTS = {
   itemDuration: 2,            // seconds for one item to cross the screen
   acceleration: 0,            // each item is this fraction faster than the last
   minItemDuration: 0.7,       // floor, so acceleration can't make it unplayable
+  /* How much of the crossing speed moves out of the middle and into the
+     ends, 0–1. 0 is the old flat scroll; 1 brings the item to a dead stop
+     dead centre. The crossing still takes `itemDuration` either way. */
+  dwell: 0.65,
   totalItems: null,           // N items per round; null = every item in the list
   gap: 0.25,                  // seconds of empty lane between items
   maxLives: 3,
@@ -107,11 +111,43 @@ const DEFAULTS = {
     bagDark:     '#b5793a',      // …and its shaded base
     traySlot:    'rgba(255,255,255,0.28)',   // the bag's handle
     trayText:    '#ffffff',
-    danger:      '#ff4d4d'
+    danger:      '#ff4d4d',
+    /* Canvas type. A skin points these at its own webfonts, which it loads
+       through the config's `fonts` array. */
+    fontBody:    "'Nunito', Arial, sans-serif",
+    fontDisplay: "'Nunito', Arial, sans-serif",
+    cardRadius:  20,
+    pixelated:   false    // nearest-neighbour scaling, for pixel-art games
   },
+  /* Stylesheet URLs injected before the first frame — webfonts a skin needs */
+  fonts: [],
   backgroundImage: null,
   audio: null,
+  /* Optional animated prestory shown before the start card. Absent or with
+     no scenes, the game opens on the start card exactly as before. */
+  intro: null,
   items: []
+};
+
+/* Intro defaults, applied per game rather than merged, because `intro` is
+   passed through whole (see DEFAULTS) so a scene list survives untouched. */
+const INTRO_DEFAULTS = {
+  sceneDuration: 3.2,     // seconds a scene holds before advancing
+  transition: 'fade',     // fade | slide | zoom
+  motion: 'float',        // pulse | float | spin | shake | none
+  autoAdvance: true,
+  skippable: true,
+  skipStartCard: false,   // true = go straight into play when it ends
+  music: null,
+
+  /* How a scene's visuals arrive: 'none', 'elastic' or 'rush'. The timing
+     knobs each mode uses (stagger, revealDuration, revealScale, hold,
+     exitDuration, exitScale, bang) are deliberately NOT defaulted here —
+     a default set here would count as "the author asked for it" and leak
+     across modes, which is how a rush ended up inheriting the elastic
+     line-up's 0.26s stagger. Each mode supplies its own below, and a scene
+     or this block can still override any of them. */
+  reveal: 'none'
 };
 
 /* Deep-merge plain objects, one level of nesting deep — enough for the
@@ -138,6 +174,80 @@ function mergeConfig(base, over) {
   return out;
 }
 
+/* ── Theming ─────────────────────────────────────────────────────────
+   A game picks its skin with a top-level "theme": "<name>" in
+   game-config.json; css/themes/<name>.css is loaded before the first frame.
+
+   That one file styles BOTH halves of the UI. The DOM chrome — HUD pills,
+   popups, buttons — is ordinary CSS overriding css/main.css. The canvas,
+   which CSS cannot reach, reads the --game-* custom properties the theme
+   declares on :root, so a skin never has to touch JavaScript.
+
+   Precedence, lowest to highest: the built-in DEFAULTS.theme, then the
+   theme stylesheet, then a per-game "themeOverrides" block — so one game
+   can retune a colour without forking the stylesheet.
+   ─────────────────────────────────────────────────────────────────── */
+function injectStylesheet(href) {
+  return new Promise(resolve => {
+    if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return resolve(true);
+    const link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = href;
+    link.onload  = () => resolve(true);
+    link.onerror = () => { console.warn(`[theme] stylesheet failed to load: ${href}`); resolve(false); };
+    document.head.appendChild(link);
+  });
+}
+
+/* backgroundTo → --game-background-to */
+const themeToken = k => '--game-' + k.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+
+function readTheme(base, overrides) {
+  const cs  = getComputedStyle(document.documentElement);
+  const out = Object.assign({}, base);
+  Object.keys(base).forEach(k => {
+    const raw = cs.getPropertyValue(themeToken(k)).trim();
+    if (raw) out[k] = raw;
+  });
+  /* Two of these are not colours and come back as strings either way */
+  const r = parseFloat(out.cardRadius);
+  out.cardRadius = isNaN(r) ? 20 : Math.max(0, r);
+  out.pixelated  = out.pixelated === true || String(out.pixelated) === '1';
+  return Object.assign(out, overrides || {});
+}
+
+/* The opaque bounds of an image, as fractions of its width and height.
+   Exports are routinely square canvases with the subject floating in a lot
+   of transparent padding — sizing, the counter badge, the label and the
+   contact shadow should all follow the artwork, not the canvas it was
+   exported on. Sampled at low resolution: this decides layout, not pixels. */
+function opaqueBounds(img) {
+  const FULL = { x0: 0, y0: 0, x1: 1, y1: 1 };
+  const S = 96;
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = S;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.drawImage(img, 0, 0, S, S);
+    const d = x.getImageData(0, 0, S, S).data;
+    let x0 = S, y0 = S, x1 = -1, y1 = -1;
+    for (let py = 0; py < S; py++) {
+      for (let px = 0; px < S; px++) {
+        if (d[(py * S + px) * 4 + 3] > 8) {
+          if (px < x0) x0 = px;
+          if (px > x1) x1 = px;
+          if (py < y0) y0 = py;
+          if (py > y1) y1 = py;
+        }
+      }
+    }
+    if (x1 < 0) return FULL;                     // fully transparent
+    return { x0: x0 / S, y0: y0 / S, x1: (x1 + 1) / S, y1: (y1 + 1) / S };
+  } catch (_) {
+    return FULL;                                  // tainted canvas, or no 2d
+  }
+}
+
 /* How long the bag and its counter react for when something lands. */
 const BAG_POP_MS   = 260;
 const BADGE_POP_MS = 320;
@@ -145,6 +255,32 @@ const BADGE_POP_MS = 320;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const lerp  = (a, b, t)   => a + (b - a) * t;
 const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+/* ── Lane easing ─────────────────────────────────────────────────────
+   An item used to cross at a flat speed, which spends as long sliding on
+   and off the edges as it does in the middle where the player can
+   actually read it. This sweeps it in, holds it through the centre, then
+   lets it go again.
+
+     e(p) = p + a·sin(2πp)/2π      e'(p) = 1 + a·cos(2πp)
+
+   Velocity is 1+a at the edges and 1−a at the centre, so `a` is literally
+   "how much of the speed to move out of the middle and into the ends".
+   Three properties earn it over a hand-rolled curve: e(0)=0, e(1)=1 and
+   e(0.5)=0.5, so the item still reaches the middle at exactly half its
+   time and the total crossing time is unchanged; e' is continuous, so
+   there is no visible kick where the phases meet; and e' ≥ 0 for a ≤ 1,
+   so it can never stall outright or drift backwards. */
+const laneEase = (p, a) => p + a * Math.sin(2 * Math.PI * p) / (2 * Math.PI);
+
+/* Overshoots its target and rings down to it — the spring at the end of a
+   thing landing. Used by the intro's `reveal: "elastic"`. */
+const easeOutElastic = t => {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  const c4 = (2 * Math.PI) / 3;
+  return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+};
 
 /* ═══════════════════════════════════════════════════════════════════════════
    The game
@@ -156,8 +292,24 @@ class ItemSortingGame {
 
     this.canvas = document.getElementById('gameCanvas');
     this.ctx    = this.canvas.getContext('2d');
-    this.T      = this.config.theme;
-    this.bare   = this.config.cardStyle === 'bare';
+    /* `theme` is polymorphic: a string names a stylesheet in css/themes/,
+       an object is inline colour overrides (what this engine took before
+       skins existed). `themeOverrides` carries the overrides when a game
+       wants both. Read off the RAW config — mergeConfig folds an object
+       theme into the defaults and would lose a string one. */
+    const rawTheme = rawConfig && rawConfig.theme;
+    this.skin = (typeof rawTheme === 'string') ? rawTheme : null;
+    this.themeOverrides = Object.assign({},
+      (rawTheme && typeof rawTheme === 'object' && !Array.isArray(rawTheme)) ? rawTheme : {},
+      (rawConfig && rawConfig.themeOverrides) || {});
+
+    /* Interim palette so nothing can hit an undefined colour before the
+       stylesheet lands; replaced by readTheme() once it has. */
+    this.T    = Object.assign({}, DEFAULTS.theme, this.themeOverrides);
+    this.bare = this.config.cardStyle === 'bare';
+    /* Known before any art loads, and the swap grid's column count depends
+       on it — so it is read off the config, not off the image cache. */
+    this.hasIcons = this.config.items.some(it => it.image || it.type === 'image');
 
     /* ── Run state ── */
     this.score      = 0;
@@ -193,6 +345,16 @@ class ItemSortingGame {
 
     this.images = {};
     this.lastFrame = 0;
+
+    /* Animated prestory. `introCfg` is the merged settings; `intro` is the
+       runtime cursor and is null whenever one is not playing. */
+    const rawIntro = this.config.intro;
+    this.introCfg = (rawIntro && Array.isArray(rawIntro.scenes) && rawIntro.scenes.length)
+      ? Object.assign({}, INTRO_DEFAULTS, rawIntro)
+      : null;
+    this.intro = null;
+    this.introSounds = {};
+    this.introAtlases = {};   // scene index → { frames:[{x,y,w,h,d}], total }
 
     this.setupMetaData();
     this.loadAssets();
@@ -247,11 +409,40 @@ class ItemSortingGame {
     });
     if (this.config.audio) jobs.push(this.loadAudio());
 
-    /* Wait for Nunito before the first card is measured, so text is wrapped
-       against the real face rather than the fallback — but never let a
-       stalled webfont hold the start screen hostage. */
+    /* Intro art. A scene may carry one `image`, several `images`, or a
+       `sprite` strip — and, until the real assets land, none of them: a
+       scene with no art still plays, with its line centred instead. */
+    if (this.introCfg) {
+      this.introCfg.scenes.forEach((sc, i) => {
+        const list = sc.images || (sc.image ? [sc.image] : []);
+        list.forEach((src, k) => jobs.push(this.loadImage(`intro_${i}_${k}`, ASSET_BASE + src)));
+        if (sc.sprite && sc.sprite.atlas) {
+          jobs.push(this.loadAtlas(i, sc.sprite));
+        } else if (sc.sprite && sc.sprite.url) {
+          jobs.push(this.loadImage(`introSprite_${i}`, ASSET_BASE + sc.sprite.url));
+        }
+        if (sc.sound) jobs.push(this.loadIntroSound(i, ASSET_BASE + sc.sound));
+      });
+      if (this.introCfg.music) {
+        jobs.push(this.loadIntroSound('music', ASSET_BASE + this.introCfg.music));
+      }
+    }
+
+    /* The skin, in order: stylesheets first (the theme may pull in its own
+       webfonts), then the fonts settle, then the palette is read off :root.
+       It runs alongside the artwork rather than before it, but the steps
+       inside it are strictly ordered — reading the palette before the
+       stylesheet lands would just return css/main.css's defaults, and
+       measuring a card before the font arrives wraps it against the
+       fallback face. Neither a stalled font nor a missing theme file is
+       allowed to hold the start screen. */
     const fontsReady = (document.fonts && document.fonts.ready) || Promise.resolve();
-    jobs.push(Promise.race([fontsReady, new Promise(r => setTimeout(r, 1500))]));
+    jobs.push(
+      this.loadSkin()
+        .then(() => Promise.race([fontsReady, new Promise(r => setTimeout(r, 1500))]))
+        .then(() => { this.T = readTheme(DEFAULTS.theme, this.themeOverrides); })
+        .catch(() => { this.T = readTheme(DEFAULTS.theme, this.themeOverrides); })
+    );
 
     await Promise.all(jobs);
 
@@ -267,13 +458,73 @@ class ItemSortingGame {
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('gameContainer').style.display = 'block';
-    document.getElementById('gameStart').style.display = 'block';
     bootDone();
-
-    /* Draw one frame behind the start popup so the lane and tray are
-       already there rather than appearing at the first tap. */
     this.ready = true;
-    this.draw();
+
+    if (this.introCfg) {
+      this.startIntro();
+    } else {
+      document.getElementById('gameStart').style.display = 'block';
+      /* Draw one frame behind the start popup so the lane and bag are
+         already there rather than appearing at the first tap. */
+      this.draw();
+    }
+  }
+
+  /* A sprite sheet described by a JSON atlas (the Aseprite / ludo.ai shape:
+     a `frames` map or array of {frame:{x,y,w,h}, duration}). Frames may be
+     laid out in any grid — the rects say where each one is, so rows are no
+     different from a strip.
+
+     The sheet itself is taken to be `sprite.png` beside the JSON unless the
+     scene names a `url`: these files carry a `meta.image` from whatever
+     generated them, and in every one here it points at a filename that does
+     not exist. Trusting it would break the scene for no benefit. */
+  loadAtlas(i, spec) {
+    const dir = spec.atlas.replace(/[^/]*$/, '');
+    return fetch(ASSET_BASE + spec.atlas)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(json => {
+        const raw = json && json.frames;
+        if (!raw) throw new Error('no frames in atlas');
+        /* Aseprite emits either a keyed map or an array; the keys are
+           zero-padded so sorting them keeps the frames in order. */
+        const list = Array.isArray(raw) ? raw.slice()
+                                        : Object.keys(raw).sort().map(k => raw[k]);
+        const frames = list
+          .filter(f => f && f.frame)
+          .map(f => ({ x: f.frame.x, y: f.frame.y, w: f.frame.w, h: f.frame.h,
+                       d: f.duration || 0 }));
+        if (!frames.length) throw new Error('atlas has no usable frames');
+        this.introAtlases[i] = {
+          frames,
+          total: frames.reduce((a, f) => a + f.d, 0)
+        };
+        return this.loadImage(`introSprite_${i}`, ASSET_BASE + (spec.url || dir + 'sprite.png'));
+      })
+      .catch(e => {
+        /* A broken atlas must not take the intro down with it — the scene
+           falls back to its line on its own. */
+        console.warn(`[intro] atlas failed: ${spec.atlas}`, e);
+      });
+  }
+
+  loadIntroSound(key, src) {
+    return new Promise(resolve => {
+      try {
+        const a = new Audio(src);
+        a.volume = (this.config.audio && this.config.audio.effectsVolume) || 0.6;
+        this.introSounds[key] = a;
+      } catch (e) { console.warn(`[intro] failed to load sound: ${src}`, e); }
+      resolve();
+    });
+  }
+
+  /* The theme stylesheet plus any webfonts the game declares. */
+  loadSkin() {
+    const jobs = (this.config.fonts || []).map(injectStylesheet);
+    if (this.skin) jobs.push(injectStylesheet(`css/themes/${this.skin}.css`));
+    return Promise.all(jobs);
   }
 
   loadImage(key, src) {
@@ -356,11 +607,14 @@ class ItemSortingGame {
      ───────────────────────────────────────────────────────────────────── */
   resize() {
     const dpr = Math.min(3, window.devicePixelRatio || 1);
-    const w = window.innerWidth;
-    const h = window.innerHeight;
     /* Mid-teardown or before the pane has a size: keep the last good layout
-       rather than recomputing one from zeroes. */
-    if (!w || !h) return;
+       rather than recomputing one from zeroes — but only once there IS one.
+       Bailing on the very first call left W/H undefined, and every later
+       draw fed `undefined` straight into createLinearGradient. */
+    const rawW = window.innerWidth, rawH = window.innerHeight;
+    if ((!rawW || !rawH) && this.L) return;
+    const w = Math.max(320, rawW || 320);
+    const h = Math.max(240, rawH || 240);
 
     this.canvas.width  = Math.round(w * dpr);
     this.canvas.height = Math.round(h * dpr);
@@ -386,29 +640,47 @@ class ItemSortingGame {
     /* The tray is one object — a bag, a case, a wardrobe — not a shelf of
        slots. What is inside it is only ever spelled out when the player has
        to choose something to throw off. */
-    const img   = this.images.tray;
-    const ratio = img ? img.naturalHeight / img.naturalWidth : 0.82;
+    const img = this.images.tray;
+    if (img && !this.trayBounds) this.trayBounds = opaqueBounds(img);
+    const b = (img && this.trayBounds) || { x0: 0, y0: 0, x1: 1, y1: 1 };
+    const fx = b.x1 - b.x0, fy = b.y1 - b.y0;    // visible fraction of the file
+
+    /* Everything is sized against the VISIBLE art, so a padded export and a
+       tightly-cropped one come out the same size on screen. */
+    const ratio = img ? (fy * img.naturalHeight) / (fx * img.naturalWidth) : 0.82;
+
     /* A landscape phone has barely any height to share. The bag takes a
        smaller cut there so the lane keeps enough room for a card to carry
        its picture — on a picture game the art is the content, and dropping
        it is a worse trade than a smaller bag. */
     const bagShare = h < 480 ? 0.22 : 0.30;
-    const bagW  = clamp(Math.min(w * 0.30, h * bagShare / ratio), 96, 240);
-    const bagH  = bagW * ratio;
+    const visW = clamp(Math.min(w * 0.30, h * bagShare / ratio), 96, 240);
+    const visH = visW * ratio;
     const labelH = 22;
+
+    /* The rect the whole file is drawn into, chosen so the visible art lands
+       centred horizontally with its feet on the bottom margin. */
+    const fullW = visW / fx, fullH = visH / fy;
+    const baseline = h - safeBottom - pad - labelH;
 
     this.L = { pad, hudH, labelH };
     this.L.bag = {
-      w: bagW, h: bagH,
-      x: (w - bagW) / 2,
-      y: h - safeBottom - pad - labelH - bagH
+      w: fullW, h: fullH,
+      x: (w - visW) / 2 - b.x0 * fullW,
+      y: baseline - b.y1 * fullH
+    };
+    /* What the player actually sees — the badge, the label, the shadow and
+       the lane's lower edge all hang off this, not off the file's box. */
+    this.L.bagVis = {
+      x: (w - visW) / 2, y: baseline - visH,
+      w: visW, h: visH
     };
 
     this.L.laneTop = hudH + 6;
     /* Never let the band invert. A pane that is briefly a few pixels tall —
        a reopening preview, a phone mid-rotation — would otherwise hand
        measureCard a negative height and it would drop every card's art. */
-    this.L.laneBottom = Math.max(this.L.laneTop + 120, this.L.bag.y - 14);
+    this.L.laneBottom = Math.max(this.L.laneTop + 120, this.L.bagVis.y - 14);
     this.L.laneY      = this.L.laneTop + (this.L.laneBottom - this.L.laneTop) * 0.5;
 
     /* Card size. Wide enough to read a sentence, never more than half the
@@ -516,6 +788,402 @@ class ItemSortingGame {
       if (!violations) break;
     }
     return queue;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     Animated intro
+
+     A list of scenes, each one line of text and a visual: a still icon
+     given a bit of life (pulse, float, spin, shake), several icons
+     drifting together, or a sprite strip played back at a frame rate.
+     Scenes cross-fade — or slide, or zoom — and the whole thing is
+     skippable.
+
+     Drawn on the canvas rather than in the DOM: sprite frames need exact
+     control, the motions are two lines of trig each, and it reuses the
+     loader, the frame loop, wrapText and the theme's colours and fonts
+     that are already here. The cost is that the text is canvas text, so
+     a theme restyles it through THEME rather than with a CSS rule.
+     ═══════════════════════════════════════════════════════════════════ */
+  startIntro() {
+    document.getElementById('gameStart').style.display = 'none';
+    const skip = document.getElementById('introSkip');
+    if (skip) {
+      skip.textContent = _getUIText('btn_skip');
+      skip.style.display = this.introCfg.skippable ? 'block' : 'none';
+    }
+
+    /* Score, progress and lives mean nothing yet — a title sequence should
+       not be framed by an empty scoreboard. */
+    document.body.classList.add('intro-playing');
+
+    this.intro = { i: 0, t: 0, scenes: this.introCfg.scenes };
+    this.playIntroSound(0);
+
+    const music = this.introSounds.music;
+    if (music && !this.isMuted) {
+      music.loop = true;
+      music.play().catch(() => {});
+    }
+
+    this.lastFrame = performance.now();
+    if (!this.loopRunning) { this.loopRunning = true; this.loop(); }
+  }
+
+  /* Per-scene override, else the intro-wide setting. */
+  sceneOpt(key) {
+    const sc = this.intro.scenes[this.intro.i] || {};
+    return (sc[key] !== undefined) ? sc[key] : this.introCfg[key];
+  }
+
+  sceneDuration() {
+    const sc = this.intro.scenes[this.intro.i] || {};
+    return ((sc.duration || this.introCfg.sceneDuration) || 3.2) * 1000;
+  }
+
+  /* Entry and exit lengths, capped so a very short scene still shows
+     something solid between them rather than only transitions. */
+  sceneFades() {
+    const dur = this.sceneDuration();
+    return { in: Math.min(450, dur * 0.3), out: Math.min(350, dur * 0.25) };
+  }
+
+  playIntroSound(i) {
+    const s = this.introSounds[i];
+    if (!s || this.isMuted) return;
+    const clone = s.cloneNode();
+    clone.volume = s.volume;
+    clone.play().catch(() => {});
+  }
+
+  /* A tap does not cut straight to the next scene — it jumps to the start
+     of this one's exit, so the transition still plays and the sequence
+     never flickers. */
+  advanceIntro() {
+    const I = this.intro;
+    if (!I) return;
+    const dur = this.sceneDuration(), out = this.sceneFades().out;
+    if (I.t < dur - out) { I.t = dur - out; return; }
+    this.nextScene();
+  }
+
+  nextScene() {
+    const I = this.intro;
+    if (!I) return;
+    if (I.i >= I.scenes.length - 1) { this.endIntro(); return; }
+    I.i++;
+    I.t = 0;
+    this.playIntroSound(I.i);
+  }
+
+  endIntro() {
+    if (!this.intro) return;
+    this.intro = null;
+    document.body.classList.remove('intro-playing');
+    const skip = document.getElementById('introSkip');
+    if (skip) skip.style.display = 'none';
+
+    const music = this.introSounds.music;
+    if (music) { music.pause(); music.currentTime = 0; }
+
+    if (this.introCfg.skipStartCard) this.startGame();
+    else document.getElementById('gameStart').style.display = 'block';
+  }
+
+  updateIntro(dt) {
+    const I = this.intro;
+    I.t += dt;
+    if (this.introCfg.autoAdvance === false) return;
+    if (I.t >= this.sceneDuration()) this.nextScene();
+  }
+
+  /* One scene: its visual, its line, and the progress dots. */
+  drawIntro() {
+    const ctx = this.ctx, T = this.T, I = this.intro;
+    const sc = I.scenes[I.i] || {};
+    const dur = this.sceneDuration();
+    const f = this.sceneFades();
+
+    /* Scene-wide alpha. With autoAdvance off there is no exit phase to
+       fade through — the scene simply waits for the player. */
+    let a = 1;
+    if (I.t < f.in) a = I.t / f.in;
+    else if (this.introCfg.autoAdvance !== false && I.t > dur - f.out) {
+      a = (dur - I.t) / f.out;
+    }
+    a = clamp(a, 0, 1);
+    const eased = easeOut(a);
+
+    /* The transition is a transform on the whole scene; `dir` is +1 while
+       it is arriving and −1 while it leaves, so slide and zoom move the
+       right way at each end instead of bouncing back. */
+    const leaving = I.t > dur - f.out;
+    const dir = leaving ? -1 : 1;
+    const trans = this.sceneOpt('transition') || 'fade';
+
+    ctx.save();
+    ctx.globalAlpha = eased;
+    ctx.translate(this.W / 2, 0);
+    if (trans === 'slide') ctx.translate(0, dir * (1 - eased) * 34);
+    if (trans === 'zoom')  ctx.scale(lerp(0.9, 1, eased), lerp(0.9, 1, eased));
+
+    const hasArt = this.introHasArt(I.i, sc);
+    const visualY = hasArt ? this.H * 0.40 : 0;
+    const textY   = hasArt ? this.H * 0.68 : this.H * 0.5;
+
+    if (hasArt) this.drawIntroVisual(sc, I.i, visualY, I.t);
+
+    /* The line lands a beat after the picture. */
+    const textIn = clamp((I.t - 170) / f.in, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = eased * (leaving ? 1 : easeOut(textIn));
+    this.drawIntroText(sc.text || '', textY);
+    ctx.restore();
+
+    ctx.restore();
+
+    this.drawIntroDots();
+  }
+
+  introHasArt(i, sc) {
+    if (sc.sprite && this.images[`introSprite_${i}`]) return true;
+    return !!this.images[`intro_${i}_0`];
+  }
+
+  /* Continuous motion, independent of the entry transition. `phase` lets a
+     row of icons bob out of step with each other. */
+  applyMotion(motion, t, phase) {
+    const ctx = this.ctx;
+    const p = phase || 0;
+    switch (motion) {
+      case 'pulse': {
+        const s = 1 + 0.07 * Math.sin(t / 360 + p);
+        ctx.scale(s, s);
+        break;
+      }
+      case 'float': ctx.translate(0, Math.sin(t / 620 + p) * 9); break;
+      case 'spin':  ctx.rotate(t / 1400 + p); break;
+      case 'shake': ctx.translate(Math.sin(t / 55 + p) * 3, 0); break;
+      default: break;
+    }
+  }
+
+  drawIntroVisual(sc, i, cy, t) {
+    const ctx = this.ctx;
+    const motion = this.sceneOpt('motion') || 'none';
+    const rush = (this.sceneOpt('reveal') || 'none') === 'rush';
+
+    /* A rushing image is meant to fill the frame at full size, so it gets a
+       much larger base than one sat quietly in a row — but kept clear of the
+       caption underneath, including the overshoot at the bang. */
+    const size = rush
+      ? clamp(Math.min(this.W * 0.72, this.H * 0.48), 140, 560)
+      : clamp(Math.min(this.W * 0.42, this.H * 0.34), 90, 300);
+
+    const sprite = sc.sprite && this.images[`introSprite_${i}`];
+    if (sprite) {
+      const r = this.revealAt(0, t, 1);
+      if (!r) return;
+      ctx.save();
+      ctx.globalAlpha *= r.alpha;
+      ctx.translate(0, cy);
+      if (r.settled) this.applyMotion(motion, r.motionT, 0);
+      ctx.scale(r.scale, r.scale);
+      this.drawSpriteFrame(sprite, sc.sprite, 0, 0, size, t, this.introAtlases[i]);
+      ctx.restore();
+      return;
+    }
+
+    /* One icon, or a row of them drifting on their own phases. */
+    const imgs = [];
+    for (let k = 0; ; k++) {
+      const img = this.images[`intro_${i}_${k}`];
+      if (!img) break;
+      imgs.push(img);
+    }
+    if (!imgs.length) return;
+
+    /* A rush stacks them in one place, one at a time; anything else lays
+       them out in a row. */
+    const each = (rush || imgs.length === 1)
+      ? size
+      : Math.min(size * 0.72, (this.W - 60) / imgs.length - 14);
+    const step = rush ? 0 : each + 14;
+    const startX = rush ? 0 : -((imgs.length - 1) * step) / 2;
+
+    /* Depth order. In a rush the one leaving is nearest the camera and the
+       one arriving is furthest away, so the new one has to be painted first
+       and revealed *through* the departing one as it fades. */
+    const order = imgs.map((_, k) => k);
+    if (rush) order.reverse();
+
+    order.forEach(k => {
+      const img = imgs[k];
+      const r = this.revealAt(k, t, imgs.length);
+      if (!r) return;                      // not on screen: too early, or gone
+      ctx.save();
+      ctx.globalAlpha *= r.alpha;
+      ctx.translate(startX + k * step, cy);
+      /* Motion only once it has landed, and clocked from the landing, so
+         the drift starts from zero instead of snapping to whatever phase
+         the scene clock happened to be at. */
+      if (r.settled) this.applyMotion(motion, r.motionT, k * 1.1);
+      ctx.scale(r.scale, r.scale);
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const h = each, w = h * ratio;
+      ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+    });
+  }
+
+  /* Where image `k` is in its entrance at scene-time `t`.
+     Returns null when it is not on screen at all — before its turn, or once
+     it has gone past. Otherwise a scale, an alpha, and a clock that starts
+     at zero the moment it settles. With reveal 'none' it is simply present
+     from the first frame, which is the old behaviour. */
+  revealAt(k, t, count) {
+    const mode = this.sceneOpt('reveal') || 'none';
+    if (mode === 'none') return { scale: 1, alpha: 1, settled: true, motionT: t };
+    if (mode === 'rush') return this.rushAt(k, t, count || 1);
+
+    const stagger = (this.sceneOpt('stagger')        ?? 0.26) * 1000;
+    const dur     = Math.max(1, (this.sceneOpt('revealDuration') ?? 0.75) * 1000);
+    const from    = this.sceneOpt('revealScale')     ?? 2.4;
+
+    const start = k * stagger;
+    const p = (t - start) / dur;
+    if (p <= 0) return null;
+    if (p >= 1) return { scale: 1, alpha: 1, settled: true, motionT: t - start - dur };
+
+    /* Shrinking onto its mark, overshooting, ringing down. The fade is done
+       well before the spring so the bounce is seen, not faded through. */
+    return {
+      scale: lerp(from, 1, easeOutElastic(p)),
+      alpha: easeOut(clamp(p / 0.35, 0, 1)),
+      settled: false,
+      motionT: 0
+    };
+  }
+
+  /* reveal: "rush" — one at a time, out of the depth and past the camera.
+     Each image comes up from almost nothing at zero opacity, accelerates
+     toward the viewer, punches through its full size, holds, then keeps
+     growing and fades out as it passes. The next one is already rising
+     behind it, so the handover happens through the departing one.
+
+     The approach is exponential rather than linear: something travelling at
+     a steady speed toward a camera grows in apparent size that way, and it
+     is what makes it read as distance rather than as a scale animation. */
+  rushAt(k, t, count) {
+    const IN   = Math.max(1, (this.sceneOpt('revealDuration') ?? 0.65) * 1000);
+    const HOLD = Math.max(0, (this.sceneOpt('hold')           ?? 0.35) * 1000);
+    const OUT  = Math.max(1, (this.sceneOpt('exitDuration')   ?? 0.45) * 1000);
+    /* By default the next one starts exactly as this one begins to leave. */
+    const st = this.sceneOpt('stagger');
+    const stagger = (st != null) ? st * 1000 : IN + HOLD;
+
+    const from  = clamp(this.sceneOpt('revealScale') ?? 0.06, 0.001, 0.9);
+    const exitS = this.sceneOpt('exitScale')         ?? 3.2;
+    /* The last one is the payoff — it stays rather than flying off and
+       leaving the line empty for the rest of the scene. */
+    const holdLast = this.sceneOpt('holdLast') !== false;
+    const isLast = k === count - 1;
+
+    const t0 = t - k * stagger;
+    if (t0 <= 0) return null;
+
+    if (t0 < IN) {
+      const p = t0 / IN;
+      /* Travel, then bang. The approach reaches full size at KNEE rather
+         than at the very end, and the rest of the time is the overshoot —
+         otherwise the punch lands while the image is still small and is not
+         seen at all. Both halves meet at exactly 1, so there is no seam. */
+      const KNEE = 0.78;
+      const amt = this.sceneOpt('bang') ?? 0.16;
+      const scale = (p <= KNEE)
+        ? from * Math.pow(1 / from, p / KNEE)
+        : 1 + amt * Math.sin(Math.PI * (p - KNEE) / (1 - KNEE));
+      return { scale, alpha: clamp(p / 0.55, 0, 1), settled: false, motionT: 0 };
+    }
+
+    if (t0 < IN + HOLD || (isLast && holdLast)) {
+      return { scale: 1, alpha: 1, settled: true, motionT: t0 - IN };
+    }
+
+    const q = (t0 - IN - HOLD) / OUT;
+    if (q >= 1) return null;                 // gone past
+    const e = q * q;                         // accelerating away
+    return { scale: lerp(1, exitS, e), alpha: 1 - e, settled: false, motionT: 0 };
+  }
+
+  /* One frame of a sprite: from an atlas when the scene has one, otherwise
+     a horizontal strip of `frames` equal cells played at `fps`. */
+  drawSpriteFrame(img, spec, x, y, h, t, atlas) {
+    if (atlas && atlas.frames.length) {
+      const f = this.atlasFrameAt(atlas, spec, t);
+      const w = h * (f.w / f.h);
+      this.ctx.drawImage(img, f.x, f.y, f.w, f.h, x - w / 2, y - h / 2, w, h);
+      return;
+    }
+    const frames = Math.max(1, spec.frames || 1);
+    const fw = spec.frameWidth || (img.naturalWidth / frames);
+    const fh = img.naturalHeight;
+    const fps = spec.fps || 8;
+    const idx = Math.floor(t / 1000 * fps) % frames;
+    const w = h * (fw / fh);
+    this.ctx.drawImage(img, idx * fw, 0, fw, fh, x - w / 2, y - h / 2, w, h);
+  }
+
+  /* The atlas carries a duration per frame, so timing comes from the file
+     and uneven frames play correctly. An explicit `fps` on the scene
+     overrides it, for retiming art without re-exporting it. */
+  atlasFrameAt(atlas, spec, t) {
+    const frames = atlas.frames;
+    if (spec.fps) {
+      return frames[Math.floor(t / 1000 * spec.fps) % frames.length];
+    }
+    if (!atlas.total) return frames[Math.floor(t / 125) % frames.length];
+    let u = t % atlas.total;
+    for (let k = 0; k < frames.length; k++) {
+      u -= frames[k].d;
+      if (u < 0) return frames[k];
+    }
+    return frames[frames.length - 1];
+  }
+
+  drawIntroText(text, y) {
+    if (!text) return;
+    const ctx = this.ctx, T = this.T;
+    const fs = clamp(this.W * 0.052, 18, 34);
+    ctx.font = `800 ${fs}px ${T.fontDisplay}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = T.bareText || '#fff';
+    ctx.shadowColor = 'rgba(0,0,0,0.85)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 2;
+
+    const lines = this.wrapText(text, Math.min(this.W - 56, 760));
+    const lh = fs * 1.32;
+    const top = y - ((lines.length - 1) * lh) / 2;
+    lines.forEach((line, k) => ctx.fillText(line, 0, top + k * lh));
+  }
+
+  drawIntroDots() {
+    const ctx = this.ctx, T = this.T, I = this.intro;
+    const n = I.scenes.length;
+    if (n < 2) return;
+    const s = 7, gap = 9;
+    const y = this.H - this.safeBottom - 30;
+    const startX = this.W / 2 - ((n - 1) * (s + gap)) / 2;
+    for (let k = 0; k < n; k++) {
+      ctx.globalAlpha = k === I.i ? 1 : 0.32;
+      ctx.fillStyle = k === I.i ? T.accent : '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(startX + k * (s + gap) - s / 2, y - s / 2, s, s, 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
   }
 
   /* ─────────────────────────────────────────────────────────────────────
@@ -798,6 +1466,9 @@ class ItemSortingGame {
     };
 
     const down = e => {
+      /* Before the running guard: the intro plays while the round has not
+         started, and a tap has to reach it. */
+      if (this.intro) { e.preventDefault(); this.advanceIntro(); return; }
       if (!this.running) return;
       const p = pos(e);
 
@@ -859,6 +1530,13 @@ class ItemSortingGame {
     cv.addEventListener('touchmove', e => { if (this.current && this.current.grabbed) e.preventDefault(); }, { passive: false });
 
     document.addEventListener('keydown', e => {
+      if (this.intro) {
+        if (e.key === 'Escape') { e.preventDefault(); this.endIntro(); }
+        else if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+          e.preventDefault(); this.advanceIntro();
+        }
+        return;
+      }
       if (!this.running) return;
       if (this.pending) {
         if (e.key === 'Escape') { this.resolvePending(-1); return; }
@@ -881,6 +1559,8 @@ class ItemSortingGame {
     document.getElementById('restartBtn').addEventListener('click', () => this.restart());
     const mute = document.getElementById('muteBtn');
     if (mute) mute.addEventListener('click', () => this.toggleMute());
+    const skip = document.getElementById('introSkip');
+    if (skip) skip.addEventListener('click', e => { e.stopPropagation(); this.endIntro(); });
   }
 
   hitCard(c, p) {
@@ -919,7 +1599,11 @@ class ItemSortingGame {
     const bottom = this.H - this.safeBottom - L.pad;
     const SPLIT  = 24;                             // card ↔ grid
 
-    const cols = (cap <= 4 || this.W < 360) ? 2 : 3;
+    /* An icon eats ~38% of a cell's width, so three columns of them on a
+       phone leaves the label a column of single words. Drop to two much
+       sooner when the items carry artwork. */
+    const narrow = this.W < (this.hasIcons ? 560 : 360);
+    const cols = (cap <= 4 || narrow) ? 2 : 3;
     const rows = Math.ceil(cap / cols);
     const gap  = 10;
     const gridW = Math.min(this.W - L.pad * 2, 580);
@@ -953,6 +1637,8 @@ class ItemSortingGame {
      Update
      ───────────────────────────────────────────────────────────────────── */
   update(dt) {
+    if (this.intro) { this.updateIntro(dt); return; }
+
     /* Toasts and the flight animation keep running while the tray prompt is
        up; the conveyor does not. */
     this.toasts.forEach(t => { t.t += dt; });
@@ -997,7 +1683,8 @@ class ItemSortingGame {
     const w = this.L.cardW;
     const from = -w / 2 - 20;
     const to   = this.W + w / 2 + 20;
-    return lerp(from, to, clamp(c.t / c.duration, 0, 1));
+    const p = clamp(c.t / c.duration, 0, 1);
+    return lerp(from, to, laneEase(p, clamp(this.config.dwell, 0, 1)));
   }
 
   /* ─────────────────────────────────────────────────────────────────────
@@ -1017,7 +1704,7 @@ class ItemSortingGame {
        screens are unaffected, the width still decides there. */
     const bandH = this.L.laneBottom - this.L.laneTop;
     const fs = clamp(Math.min(w * 0.088, bandH * 0.115), 12, 22);
-    ctx.font = `700 ${fs}px Nunito, Arial, sans-serif`;
+    ctx.font = `700 ${fs}px ${this.T.fontBody}`;
     const lines = text ? this.wrapText(text, w - padX * 2) : [];
     const lineH = fs * 1.3;
 
@@ -1061,7 +1748,10 @@ class ItemSortingGame {
 
   draw() {
     const ctx = this.ctx, T = this.T;
+    if (!this.W || !this.H) return;   // no layout yet; nothing sane to paint
     ctx.clearRect(0, 0, this.W, this.H);
+    /* Pixel-art skins want nearest-neighbour, not the browser's smoothing */
+    ctx.imageSmoothingEnabled = !T.pixelated;
 
     /* Background */
     if (this.images.background) {
@@ -1076,6 +1766,10 @@ class ItemSortingGame {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, this.W, this.H);
     }
+
+    /* The intro plays over the game's own background and nothing else —
+       no lane, no bag, no cards. */
+    if (this.intro) { this.drawIntro(); return; }
 
     this.drawLane();
     this.drawBag();
@@ -1099,7 +1793,10 @@ class ItemSortingGame {
     ctx.roundRect(0, L.laneY - h / 2, this.W, h, 0);
     ctx.fill();
 
-    /* Up / down hints, brightest while a card is actually held. */
+    /* Up / down hints, brightest while a card is actually held. Hidden
+       during a swap — they prompt an interaction that is suspended, and
+       they were faintly legible through the dim. */
+    if (this.pending) return;
     const c = this.current;
     const lit = c && c.grabbed;
     const committed = lit && Math.abs(c.dy) >= L.takeDist;
@@ -1150,7 +1847,7 @@ class ItemSortingGame {
       ctx.shadowOffsetY = 8;
       ctx.fillStyle = item.color || T.card;
       ctx.beginPath();
-      ctx.roundRect(-w / 2, -h / 2, w, h, 20);
+      ctx.roundRect(-w / 2, -h / 2, w, h, T.cardRadius);
       ctx.fill();
       ctx.restore();
 
@@ -1160,7 +1857,7 @@ class ItemSortingGame {
         ctx.strokeStyle = T.accent;
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.roundRect(-w / 2 + 2, -h / 2 + 2, w - 4, h - 4, 18);
+        ctx.roundRect(-w / 2 + 2, -h / 2 + 2, w - 4, h - 4, Math.max(0, T.cardRadius - 2));
         ctx.stroke();
       }
     }
@@ -1196,7 +1893,7 @@ class ItemSortingGame {
       } else {
         ctx.fillStyle = item.textColor || T.cardText;
       }
-      ctx.font = `${this.bare ? 800 : 700} ${c.fontSize}px Nunito, Arial, sans-serif`;
+      ctx.font = `${this.bare ? 800 : 700} ${c.fontSize}px ${this.T.fontBody}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       c.lines.forEach((line, i) => ctx.fillText(line, 0, cy + i * c.lineH + 2));
@@ -1208,7 +1905,7 @@ class ItemSortingGame {
   /* The kept card shrinks into the mouth of the bag. It arcs on the way —
      a straight slide read as the card being deleted rather than packed. */
   drawFlight() {
-    const f = this.flight, B = this.L.bag;
+    const f = this.flight, B = this.L.bagVis;
     const t = easeOut(clamp(f.t / f.dur, 0, 1));
     const toX = B.x + B.w / 2, toY = B.y + B.h * 0.42;
     const x = lerp(f.fromX, toX, t);
@@ -1246,10 +1943,10 @@ class ItemSortingGame {
      the round is asking. The badge gives the one fact that is fair to
      hand over for free — how full it is. */
   drawBag() {
-    const ctx = this.ctx, B = this.L.bag, T = this.T;
+    const ctx = this.ctx, B = this.L.bag, V = this.L.bagVis, T = this.T;
 
     const pop = this.bagPop > 0 ? Math.sin((1 - this.bagPop / BAG_POP_MS) * Math.PI) * 0.09 : 0;
-    const cx = B.x + B.w / 2, cy = B.y + B.h;   // scale from the base, not the middle
+    const cx = V.x + V.w / 2, cy = V.y + V.h;   // scale from the base, not the middle
 
     ctx.save();
     ctx.translate(cx, cy);
@@ -1261,12 +1958,12 @@ class ItemSortingGame {
     ctx.globalAlpha = 0.28;
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.ellipse(cx, B.y + B.h + 5, B.w * 0.42, 7, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, V.y + V.h + 5, V.w * 0.42, 7, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
     if (this.images.tray) ctx.drawImage(this.images.tray, B.x, B.y, B.w, B.h);
-    else this.paintSuitcase(B);
+    else this.paintSuitcase(V);
 
     ctx.restore();
 
@@ -1276,15 +1973,15 @@ class ItemSortingGame {
       ctx.save();
       ctx.globalAlpha = 0.72;
       ctx.fillStyle = T.trayText;
-      ctx.font = `900 11px Nunito, Arial, sans-serif`;
+      ctx.font = `900 11px ${this.T.fontDisplay}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.letterSpacing = '0.08em';
-      ctx.fillText(String(label).toUpperCase(), cx, B.y + B.h + 11);
+      ctx.fillText(String(label).toUpperCase(), cx, V.y + V.h + 11);
       ctx.restore();
     }
 
-    this.drawBagBadge(B);
+    this.drawBagBadge(V);
   }
 
   /* Procedural stand-in for a missing tray.image: a small hard case. */
@@ -1367,7 +2064,7 @@ class ItemSortingGame {
     }
 
     ctx.fillStyle = full ? T.danger : '#ffffff';
-    ctx.font = `900 ${Math.round(rad * 1.05)}px Nunito, Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(rad * 1.05)}px ${this.T.fontBody}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(String(n), 0, 1);
@@ -1395,28 +2092,48 @@ class ItemSortingGame {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    if (img && !item.short) {
+    /* Icon beside the wording, not instead of it. The player is choosing
+       what to throw away, and they picked these things up as pictures —
+       matching the artwork is faster than reading six labels. */
+    const pad = 8;
+    let textX = r.x + r.w / 2;
+    let textW = r.w - pad * 2;
+    let align = 'center';
+
+    if (img) {
+      const box   = Math.min(r.h - pad * 2, r.w * 0.38);
       const ratio = img.naturalWidth / img.naturalHeight;
-      const ih = r.h - 16, iw = Math.min(r.w - 16, ih * ratio);
-      ctx.drawImage(img, r.x + (r.w - iw) / 2, r.y + (r.h - ih) / 2, iw, ih);
-    } else {
-      const fs = clamp(r.w * 0.1, 11, 16);
-      ctx.font = `700 ${fs}px Nunito, Arial, sans-serif`;
-      ctx.fillStyle = '#3a3320';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const lines = this.wrapText(text, r.w - 16).slice(0, 3);
-      const lh = fs * 1.2;
-      const top = r.y + r.h / 2 - ((lines.length - 1) * lh) / 2;
-      lines.forEach((line, k) => ctx.fillText(line, r.x + r.w / 2, top + k * lh));
+      const ih = box, iw = Math.min(box, box * ratio);
+      ctx.drawImage(img, r.x + pad + (box - iw) / 2, r.y + (r.h - ih) / 2, iw, ih);
+
+      textX = r.x + pad + box + 8;
+      textW = r.x + r.w - pad - textX;
+      align = 'left';
     }
 
-    /* Doubles as the keyboard shortcut */
-    ctx.font = `900 11px Nunito, Arial, sans-serif`;
+    const fs = clamp(textW * 0.15, 10, 15);
+    ctx.font = `700 ${fs}px ${this.T.fontBody}`;
+    ctx.fillStyle = '#3a3320';
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+
+    const all   = this.wrapText(text, textW);
+    const lines = all.slice(0, 3);
+    /* Say so when a label did not fit rather than cutting it off silently */
+    if (all.length > lines.length && lines.length) {
+      lines[lines.length - 1] = lines[lines.length - 1].replace(/\s+\S*$/, '') + '…';
+    }
+    const lh  = fs * 1.2;
+    const top = r.y + r.h / 2 - ((lines.length - 1) * lh) / 2;
+    lines.forEach((line, k) => ctx.fillText(line, textX, top + k * lh));
+
+    /* Doubles as the keyboard shortcut. Top-right now — the icon owns the
+       left edge. */
+    ctx.font = `900 11px ${this.T.fontBody}`;
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.textAlign = 'left';
+    ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
-    ctx.fillText(String(i + 1), r.x + 7, r.y + 6);
+    ctx.fillText(String(i + 1), r.x + r.w - 7, r.y + 6);
   }
 
   /* The bag is over capacity: unpack it. This is the only screen that
@@ -1430,13 +2147,13 @@ class ItemSortingGame {
     ctx.fillRect(0, 0, this.W, this.H);
 
     ctx.fillStyle = T.accent;
-    ctx.font = `900 ${clamp(this.W * 0.05, 18, 26)}px Nunito, Arial, sans-serif`;
+    ctx.font = `900 ${clamp(this.W * 0.05, 18, 26)}px ${this.T.fontDisplay}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(_getUIText('tray_full_title'), this.W / 2, L.laneTop + 22);
 
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = `600 ${clamp(this.W * 0.032, 12, 15)}px Nunito, Arial, sans-serif`;
+    ctx.font = `600 ${clamp(this.W * 0.032, 12, 15)}px ${this.T.fontBody}`;
     const hint = this.wrapText(_getUIText('tray_full_hint'), Math.min(this.W - 40, 460));
     hint.forEach((line, i) => ctx.fillText(line, this.W / 2, L.laneTop + 50 + i * 18));
 
@@ -1461,7 +2178,7 @@ class ItemSortingGame {
       ctx.save();
       ctx.globalAlpha = clamp(fade, 0, 1);
 
-      ctx.font = `800 ${clamp(this.W * 0.034, 12, 16)}px Nunito, Arial, sans-serif`;
+      ctx.font = `800 ${clamp(this.W * 0.034, 12, 16)}px ${this.T.fontBody}`;
       const lines = this.wrapText(t.text, maxW - 28);
       const lh = 19;
       const h = lines.length * lh + 20;

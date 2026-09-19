@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=10">
+  <link rel="stylesheet" href="css/main.css?v=24">
 
   <!-- Boot cover. The game's title, colours and art all live in a JSON file
        that can only be fetched after the page has painted, so this sits over
@@ -53,6 +53,10 @@
 
     <button class="hud-btn" id="muteBtn" title="Sound" aria-label="Sound">🔊</button>
 
+    <!-- Shown only while an animated intro is playing (see `intro` in
+         game-config.json). The scenes themselves are drawn on the canvas. -->
+    <button id="introSkip">Skip</button>
+
     <!-- ── Start ─────────────────────────────────────────── -->
     <div id="gameStart" class="popupGeneral">
       <h2 id="title">Start Game!</h2>
@@ -81,7 +85,7 @@
   <!-- ?v= is a cache buster: Apache sends no Cache-Control for these files, so
        a plain reload can keep running a stale build. Bump it when js/ or css/
        changes. -->
-  <script src="js/ui-texts.js?v=10"></script>
-  <script src="js/main.js?v=10"></script>
+  <script src="js/ui-texts.js?v=24"></script>
+  <script src="js/main.js?v=24"></script>
 </body>
 </html>

@@ -47,6 +47,7 @@ const _UI_TEXTS = {
 
     /* ── Start screen ── */
     'btn_start':          'Start',
+    'btn_skip':           'Skip',
     'hint_flick':         'Flick an item <b>up</b> or <b>down</b> to put it in your bag.',
     'hint_pass':          'Do nothing and it scrolls away. Letting something pass <b>is</b> the no.',
     'hint_tray':          'Your bag holds {n} — the counter on it tells you how full it is. Taking one more means throwing one off.',
@@ -82,6 +83,7 @@ const _UI_TEXTS = {
     'items_counter':      '{n} / {total}',
     'items_counter_inf':  'Предмет {n}',
     'btn_start':          'Старт',
+    'btn_skip':           'Пропусни',
     'hint_flick':         'Плъзни предмета <b>нагоре</b> или <b>надолу</b>, за да го сложиш в чантата.',
     'hint_pass':          'Не направиш ли нищо, той отминава. Да го пуснеш <b>е</b> отказът.',
     'hint_tray':          'В чантата има място за {n} — броячът показва колко е пълна. Още един означава да изхвърлиш нещо.',
@@ -111,6 +113,7 @@ const _UI_TEXTS = {
     'items_counter':      '{n} / {total}',
     'items_counter_inf':  'العنصر {n}',
     'btn_start':          'ابدأ',
+    'btn_skip':           'تخطٍ',
     'hint_flick':         'اسحب العنصر <b>للأعلى</b> أو <b>للأسفل</b> لوضعه في الحقيبة.',
     'hint_pass':          'إن لم تفعل شيئًا فسيمر. تركه يمر <b>هو</b> الرفض.',
     'hint_tray':          'تتسع الحقيبة لـ {n} — والعدّاد عليها يبيّن مدى امتلائها. أخذ واحد إضافي يعني التخلص من غيره.',

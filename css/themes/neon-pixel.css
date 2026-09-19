@@ -1,0 +1,166 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME — neon-pixel
+   Near-black violet ground, hot pink and electric violet accents, arcade
+   type. Built for games whose artwork is pixel art: the chrome squares off
+   and glows instead of casting the hard offset shadows of the default skin,
+   so it belongs to the same world as the sprites.
+
+   Selected with  "theme": "neon-pixel"  in the game's game-config.json.
+   Its webfonts come from that file's `fonts` array.
+
+   Everything here overrides css/main.css — the base sheet still provides the
+   layout, this only restyles it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Palette ── */
+  --pink:         #ff5fa2;
+  --pink-dark:    #c53a8d;
+  --pink-light:   #ffadd9;
+  --violet:       #8b5cf6;
+  --violet-mid:   #6b3eff;
+  --violet-deep:  #4c1d95;
+  --violet-dark:  #241633;
+  --ink:          #0f0a1e;
+  --panel:        #1c1233;
+  --panel-hi:     #2a1b47;
+  --white:        #fafafb;
+  --grey:         #a99bc4;
+
+  /* Depth is a glow, not an offset — the default skin's chunky drop
+     shadows read as plastic next to pixel art. */
+  --glow-pink:   0 0 18px rgba(255, 95, 162, 0.55);
+  --glow-violet: 0 0 18px rgba(107, 62, 255, 0.50);
+
+  /* ── DOM chrome ── */
+  --font-body:      'Space Mono', 'Nunito', monospace;
+  --font-display:   'DotGothic16', 'Nunito', monospace;
+
+  --ui-bg:          var(--ink);
+  --ui-text:        var(--white);
+
+  --pill-bg:        rgba(28, 18, 51, 0.92);
+  --pill-text:      var(--pink-light);
+  --pill-shadow:    var(--glow-violet);
+  --pill-radius:    6px;          /* squared off, not a capsule */
+
+  --chip-bg:        rgba(28, 18, 51, 0.92);
+  --chip-text:      var(--pink-light);
+
+  --popup-bg:       var(--panel);
+  --popup-text:     var(--white);
+  --popup-shadow:   0 0 0 2px var(--violet-mid), 0 0 34px rgba(107, 62, 255, 0.45);
+  --popup-radius:   10px;
+  --popup-title-shadow: 0 0 26px rgba(255, 95, 162, 0.75);
+
+  --btn-bg:          var(--pink);
+  --btn-bg-hover:    #ff7bb4;
+  --btn-shadow:      var(--glow-pink);
+  --btn-shadow-hover:0 0 26px rgba(255, 95, 162, 0.85);
+  --btn-radius:      12px;
+
+  /* ── Canvas (read by THEME in js/main.js) ── */
+  --game-font-body:     'Space Mono', monospace;
+  --game-font-display:  'DotGothic16', monospace;
+  --game-background:    #160f2e;
+  --game-background-to: #3d1a4a;
+  --game-lane:          rgba(255, 255, 255, 0.05);
+  --game-card:          #ffffff;
+  --game-card-text:     #241633;
+  --game-card-taken:    #efe0ff;
+  --game-bare-text:     #ffffff;
+  --game-accent:        #ff5fa2;
+  --game-bag:           #8b5cf6;
+  --game-bag-dark:      #4c1d95;
+  --game-tray-slot:     rgba(255, 255, 255, 0.30);
+  --game-tray-text:     #ffffff;
+  --game-danger:        #ff4d6d;
+  --game-card-radius:   8;        /* squared, to match the chrome */
+  --game-pixelated:     0;        /* the art is downscaled, so keep smoothing */
+}
+
+body { background: var(--ink); }
+
+/* Hearts take their colour from CSS, so a skin can recolour them */
+:root { --life-full: #ff5fa2; --life-gone: #3a2b55; }
+
+/* ── HUD ──────────────────────────────────────────────────────────── */
+#scoreBoard, #livesBoard, #progressBoard {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+#scoreBoard {
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+}
+
+#progressBoard {
+  font-family: var(--font-body);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+/* The score icon is a warm cartoon trophy — wrong world here, and the
+   theme cannot replace the file, so it goes and the padding closes up. */
+#scoreIcon { display: none; }
+#scoreBoard { padding: 9px 18px; }
+html.rtl #scoreBoard { padding: 9px 18px; }
+
+.hud-btn {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--pink-light);
+}
+.hud-btn:hover {
+  background: var(--violet-mid);
+  color: var(--white);
+  box-shadow: var(--glow-violet);
+}
+
+/* ── Popups ───────────────────────────────────────────────────────── */
+.popupGeneral {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.popupGeneral h2 {
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.popupGeneral h3 {
+  font-family: var(--font-body);
+  color: var(--grey);
+  letter-spacing: .02em;
+}
+
+.popupGeneral h4 {
+  font-family: var(--font-body);
+  color: var(--pink);
+  letter-spacing: .14em;
+}
+
+/* Rules list: pink markers rather than white dots */
+.rules li::before {
+  background: var(--pink);
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(255, 95, 162, 0.8);
+  border-radius: 0;          /* a pixel, not a dot */
+  width: 6px; height: 6px;
+}
+.rules b { color: var(--pink-light); }
+
+/* Results */
+.results-list li { color: var(--white); }
+.results-list.bad li { color: var(--pink-light); }
+.results-list.bad li::before { color: var(--pink); }
+.results-empty { color: var(--grey); }
+
+.button-circle {
+  border: none;
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.button-circle:hover { transform: translateY(-2px); }
+.button-circle:active { transform: translateY(1px); }

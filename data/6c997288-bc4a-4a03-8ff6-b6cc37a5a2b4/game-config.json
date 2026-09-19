@@ -6,6 +6,36 @@
   "order": "random",
   "duration": "finite",
 
+  "intro": {
+    "sceneDuration": 3.2,
+    "transition": "fade",
+    "autoAdvance": true,
+    "skippable": true,
+    "skipStartCard": false,
+    "scenes": [
+      { "text": "It's 2am. Everyone is asleep.",
+        "image": "sleep_fine_hd.png",     "motion": "pulse" },
+
+      { "text": "Except you.",
+        "sprite": { "atlas": "sprite-annoyed-face/sprite.json" },
+        "motion": "float", "duration": 3.4 },
+
+      { "text": "You're up for something.",
+        "image": "dont_know_yet_hd.png",   "motion": "float" },
+
+      { "text": "It's your choice. And in fact, you are not alone",
+        "images": ["pizza_slice_hd.png", "wings.png", "sparkling_water.png"],
+        "motion": "float", "duration": 3.6 },
+
+      { "text": "Scupid, Slaten and Scorny are here to tease you.",
+        "images": ["Scupid.png", "Slaten.png", "Scorny.png"],
+        "reveal": "rush",
+        "revealDuration": 0.7, "hold": 0.4, "exitDuration": 0.5,
+        "revealScale": 0.05, "exitScale": 3.4,
+        "motion": "float", "duration": 4.8, "transition": "fade" }
+    ]
+  },
+
   "cardStyle": "bare",
 
   "itemDuration": 3.8,
@@ -15,7 +45,7 @@
   "totalItems": 30,
 
   "maxLives": 3,
-  "tray": { "capacity": 6, "label": "WHAT YOU DID" },
+  "tray": { "capacity": 6, "label": "WHAT YOU DID", "image": "bag.png" },
 
   "scoring": {
     "take": 5,
@@ -28,18 +58,10 @@
     "stall":         { "enabled": true, "streak": 3, "requireHover": true, "lives": 1 }
   },
 
-  "theme": {
-    "background": "#160f2e",
-    "backgroundTo": "#3d1a4a",
-    "accent": "#ff5fa2",
-    "card": "#ffffff",
-    "cardText": "#241633",
-    "cardTaken": "#efe0ff",
-    "bag": "#8b5cf6",
-    "bagDark": "#4c1d95",
-    "traySlot": "rgba(255,255,255,0.30)",
-    "danger": "#ff4d6d"
-  },
+  "theme": "neon-pixel",
+  "fonts": [
+    "https://fonts.googleapis.com/css2?family=DotGothic16&family=Space+Mono:wght@400;700&display=swap"
+  ],
 
   "items": [
     { "image": "left_on_read.png",          "content": "Check whether they've read it",          "short": "Check if read",       "pairId": "seen" },
