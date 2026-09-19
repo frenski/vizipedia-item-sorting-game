@@ -1,0 +1,73 @@
+{
+  "title": "What You'd Actually Eat",
+  "subTitle": "One round, thirty options, room for six. No right answers — only whether your own choices hang together.",
+
+  "mode": "consistency",
+  "order": "random",
+  "duration": "finite",
+
+  "itemDuration": 2.4,
+  "acceleration": 0.012,
+  "minItemDuration": 1.1,
+  "gap": 0.3,
+  "totalItems": 30,
+
+  "maxLives": 3,
+  "tray": { "capacity": 6, "label": "TONIGHT" },
+
+  "scoring": {
+    "take": 5,
+    "completionBonus": 40
+  },
+
+  "rules": {
+    "contradiction": { "enabled": true, "lives": 1 },
+    "freeze":        { "enabled": true, "afterItems": 8, "lives": 1 },
+    "stall":         { "enabled": true, "streak": 3, "requireHover": true, "lives": 1 }
+  },
+
+  "theme": {
+    "background": "#171b30",
+    "backgroundTo": "#3a2340",
+    "accent": "#ffc533",
+    "cardTaken": "#ffe4ad"
+  },
+
+  "items": [
+    { "content": "Cold pizza from the fridge",                 "short": "Cold pizza",      "pairId": "pizza" },
+    { "content": "Last night's pizza, not reheated",           "short": "Old pizza",       "pairId": "pizza" },
+
+    { "content": "A big green salad",                          "short": "Green salad",     "pairId": "salad" },
+    { "content": "Leaves in a bowl, no dressing",              "short": "Dry leaves",      "pairId": "salad" },
+
+    { "content": "Homemade lentil soup",                       "short": "Lentil soup",     "pairId": "soup" },
+    { "content": "Lentil soup, if you cook it yourself",       "short": "Soup you cook",   "pairId": "soup" },
+
+    { "content": "Takeaway noodles, forty minutes out",        "short": "Takeaway noodles","pairId": "noodles" },
+    { "content": "Noodles delivered lukewarm",                 "short": "Cold noodles",    "pairId": "noodles" },
+
+    { "content": "Scrambled eggs on toast",                    "short": "Eggs on toast",   "pairId": "eggs" },
+    { "content": "Eggs, once you've washed the pan",           "short": "Eggs + washing up","pairId": "eggs" },
+
+    { "content": "A banana going brown",                       "short": "Brown banana" },
+    { "content": "Instant ramen from the cupboard",            "short": "Instant ramen" },
+    { "content": "The last yoghurt",                           "short": "Last yoghurt" },
+    { "content": "Leftover rice with soy sauce",               "short": "Rice + soy" },
+    { "content": "A bowl of cereal at nine at night",          "short": "Late cereal" },
+    { "content": "Frozen dumplings, twelve minutes",           "short": "Dumplings" },
+    { "content": "Half a shop rotisserie chicken",             "short": "Half a chicken" },
+    { "content": "Crackers and a block of cheese",             "short": "Crackers + cheese" },
+    { "content": "Porridge with nothing on it",                "short": "Plain porridge" },
+    { "content": "A protein bar from the drawer",              "short": "Protein bar" },
+    { "content": "Toast with peanut butter",                   "short": "Peanut toast" },
+    { "content": "Rice cakes, obviously",                      "short": "Rice cakes" },
+    { "content": "A tin of beans, eaten cold",                 "short": "Cold beans" },
+    { "content": "The sad end of the hummus",                  "short": "Old hummus" },
+    { "content": "Microwave rice with an egg on top",          "short": "Rice + egg" },
+    { "content": "An apple you'd have to cut up",              "short": "Whole apple" },
+    { "content": "Cold chicken straight from the tray",        "short": "Cold chicken" },
+    { "content": "A second coffee instead of dinner",          "short": "Just coffee" },
+    { "content": "Pasta with butter and black pepper",         "short": "Butter pasta" },
+    { "content": "Stale bread, toasted back to life",          "short": "Stale toast" }
+  ]
+}

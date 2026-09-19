@@ -1,0 +1,65 @@
+{
+  "title": "Pack for a Day Hike",
+  "subTitle": "Six things fit in the pack. Flick up or down to take one — take the wrong thing and it costs you.",
+
+  "mode": "judgement",
+  "order": "random",
+  "duration": "finite",
+
+  "itemDuration": 2,
+  "acceleration": 0.02,
+  "minItemDuration": 0.9,
+  "gap": 0.25,
+  "totalItems": 20,
+
+  "maxLives": 3,
+  "tray": { "capacity": 6, "label": "YOUR PACK" },
+
+  "scoring": {
+    "correct": 15,
+    "wrong": 0,
+    "missedCorrect": 0,
+    "completionBonus": 30
+  },
+
+  "rules": {
+    "wrongPickCostsLife": true,
+    "missedCorrectCostsLife": false,
+    "contradiction": { "enabled": false },
+    "freeze":        { "enabled": true, "afterItems": 10, "lives": 1 },
+    "stall":         { "enabled": false }
+  },
+
+  "theme": {
+    "background": "#132218",
+    "backgroundTo": "#1d3b2a",
+    "accent": "#7ee08a",
+    "cardTaken": "#d4f5d8"
+  },
+
+  "items": [
+    { "content": "Water bottle, filled",      "short": "Water",       "correct": true },
+    { "content": "Paper map of the route",    "short": "Map",         "correct": true },
+    { "content": "Compass",                   "short": "Compass",     "correct": true },
+    { "content": "Small first-aid kit",       "short": "First aid",   "correct": true },
+    { "content": "Head torch",                "short": "Head torch",  "correct": true },
+    { "content": "Waterproof jacket",         "short": "Waterproof",  "correct": true },
+    { "content": "Nuts and dried fruit",      "short": "Snacks",      "correct": true },
+    { "content": "Sun cream",                 "short": "Sun cream",   "correct": true },
+    { "content": "Emergency whistle",         "short": "Whistle",     "correct": true },
+    { "content": "Phone power bank",          "short": "Power bank",  "correct": true },
+    { "content": "Sun hat",                   "short": "Hat",         "correct": true },
+    { "content": "Spare dry socks",           "short": "Spare socks", "correct": true },
+
+    { "content": "Beach umbrella",            "short": "Umbrella",    "correct": false },
+    { "content": "Hair dryer",                "short": "Hair dryer",  "correct": false },
+    { "content": "Desktop monitor",           "short": "Monitor",     "correct": false },
+    { "content": "Cast-iron frying pan",      "short": "Iron pan",    "correct": false },
+    { "content": "Glass vase",                "short": "Glass vase",  "correct": false },
+    { "content": "Roller skates",             "short": "Skates",      "correct": false },
+    { "content": "Bag of cement",             "short": "Cement",      "correct": false },
+    { "content": "Electric kettle",           "short": "Kettle",      "correct": false },
+    { "content": "Full-length mirror",        "short": "Mirror",      "correct": false },
+    { "content": "Bowling ball",              "short": "Bowling ball","correct": false }
+  ]
+}

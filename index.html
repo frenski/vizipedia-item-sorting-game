@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover: without it iOS letterboxes the page in landscape
+       and env(safe-area-inset-*) always reports 0. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Loading…</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css?v=10">
+
+  <!-- Boot cover. The game's title, colours and art all live in a JSON file
+       that can only be fetched after the page has painted, so this sits over
+       everything from the first frame and main.js takes it off once the
+       config and its assets are in. Styled inline on purpose: it must not
+       wait for a stylesheet of its own. -->
+  <style>
+    #boot {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      background: #14182b;
+      transition: opacity .28s ease;
+    }
+    #boot.boot-done { opacity: 0; pointer-events: none; }
+    #boot .boot-ring {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 4px solid rgba(255,255,255,.16);
+      border-top-color: #ffc533;
+      animation: boot-spin .85s linear infinite;
+    }
+    @keyframes boot-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #boot .boot-ring { animation-duration: 2.4s; } }
+  </style>
+</head>
+<body>
+
+  <div id="boot" role="status" aria-label="Loading"><div class="boot-ring"></div></div>
+
+  <div id="loading">Loading game…</div>
+
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ── HUD ───────────────────────────────────────────── -->
+    <div id="scoreBoard"><span id="score">0</span><span id="scoreIcon">&nbsp;</span></div>
+    <div id="progressBoard"><span id="progress">0 / 0</span></div>
+    <div id="livesBoard"></div>
+
+    <button class="hud-btn" id="muteBtn" title="Sound" aria-label="Sound">🔊</button>
+
+    <!-- ── Start ─────────────────────────────────────────── -->
+    <div id="gameStart" class="popupGeneral">
+      <h2 id="title">Start Game!</h2>
+      <h3 id="subtitle"></h3>
+      <ul class="rules" id="startRules"></ul>
+      <button class="button-circle" id="startBtn" aria-label="Start">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="37" viewBox="0 0 35 37" fill="none">
+          <path d="M32.0684 13.6023C35.9772 15.737 35.9772 21.263 32.0684 23.3977L8.46745 36.2868C4.66853 38.3616 0 35.6612 0 31.3891V5.61087C0 1.33881 4.66853 -1.36156 8.46743 0.713137L32.0684 13.6023Z" fill="white"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── End of round ──────────────────────────────────── -->
+    <div id="gameOver" class="popupGeneral">
+      <h2 id="title-game-over">Game Over!</h2>
+      <h3><span id="title-final-score">Final Score:</span> <span id="finalScore">0</span></h3>
+      <div id="resultsBody"></div>
+      <button class="button-circle" id="restartBtn" aria-label="Play again">
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <path d="M22 43.5C15.9979 43.5 10.9141 41.4172 6.74844 37.2516C2.58281 33.0859 0.5 28.0021 0.5 22C0.5 15.9979 2.58281 10.9141 6.74844 6.74844C10.9141 2.58281 15.9979 0.5 22 0.5C25.0906 0.5 28.0469 1.13873 30.8687 2.41619C33.6906 3.69185 36.1094 5.51667 38.125 7.89062V3.1875C38.125 2.42604 38.383 1.78731 38.899 1.27131C39.4132 0.757105 40.051 0.5 40.8125 0.5C41.574 0.5 42.2118 0.757105 42.726 1.27131C43.242 1.78731 43.5 2.42604 43.5 3.1875V16.625C43.5 17.3865 43.242 18.0243 42.726 18.5385C42.2118 19.0545 41.574 19.3125 40.8125 19.3125H27.375C26.6135 19.3125 25.9757 19.0545 25.4615 18.5385C24.9455 18.0243 24.6875 17.3865 24.6875 16.625C24.6875 15.8635 24.9455 15.2248 25.4615 14.7088C25.9757 14.1946 26.6135 13.9375 27.375 13.9375H35.975C34.5417 11.4292 32.5825 9.45833 30.0974 8.025C27.6106 6.59167 24.9115 5.875 22 5.875C17.5208 5.875 13.7135 7.44271 10.5781 10.5781C7.44271 13.7135 5.875 17.5208 5.875 22C5.875 26.4792 7.44271 30.2865 10.5781 33.4219C13.7135 36.5573 17.5208 38.125 22 38.125C25.0906 38.125 27.9465 37.3071 30.5677 35.6713C33.1872 34.0373 35.1464 31.8542 36.4453 29.1219C36.6693 28.6292 37.0392 28.2153 37.5553 27.8802C38.0695 27.5434 38.5953 27.375 39.1328 27.375C40.163 27.375 40.9361 27.7333 41.4521 28.45C41.9663 29.1667 42.0219 29.9729 41.6187 30.8687C39.9167 34.676 37.2964 37.7326 33.7578 40.0385C30.2193 42.3462 26.3 43.5 22 43.5Z" fill="white" stroke="white"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ?v= is a cache buster: Apache sends no Cache-Control for these files, so
+       a plain reload can keep running a stale build. Bump it when js/ or css/
+       changes. -->
+  <script src="js/ui-texts.js?v=10"></script>
+  <script src="js/main.js?v=10"></script>
+</body>
+</html>
