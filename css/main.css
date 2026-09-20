@@ -62,6 +62,10 @@
   --game-tray-text:     #ffffff;
   --game-danger:        #ff4d4d;
   --game-card-radius:   20;
+  /* Speech-bubble shape. A step above 0 cuts the corners as a staircase of
+     whole blocks instead of an arc — see THEME in js/main.js. */
+  --game-bubble-radius: 16;
+  --game-bubble-step:   0;
   --game-pixelated:     0;
 }
 

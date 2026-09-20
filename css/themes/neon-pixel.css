@@ -76,10 +76,24 @@
   --game-tray-text:     #ffffff;
   --game-danger:        #ff4d6d;
   --game-card-radius:   8;        /* squared, to match the chrome */
+  --game-bubble-radius: 12;       /* the speech bubble's corners are cut  */
+  --game-bubble-step:   4;        /* into a 4px staircase, like the sprites */
   --game-pixelated:     0;        /* the art is downscaled, so keep smoothing */
 }
 
 body { background: var(--ink); }
+
+/* A stepped circle, traced clockwise: across the top, down the right,
+   back along the bottom, up the left, with a stair cut into each quadrant. */
+:root {
+  --corner-round: polygon(
+    35% 0, 65% 0,
+    65% 8%, 80% 8%, 80% 20%, 92% 20%, 92% 35%, 100% 35%,
+    100% 65%, 92% 65%, 92% 80%, 80% 80%, 80% 92%, 65% 92%, 65% 100%,
+    35% 100%, 35% 92%, 20% 92%, 20% 80%, 8% 80%, 8% 65%, 0 65%,
+    0 35%, 8% 35%, 8% 20%, 20% 20%, 20% 8%, 35% 8%
+  );
+}
 
 /* Hearts take their colour from CSS, so a skin can recolour them */
 :root { --life-full: #ff5fa2; --life-gone: #3a2b55; }
@@ -158,9 +172,23 @@ html.rtl #scoreBoard { padding: 9px 18px; }
 .results-list.bad li::before { color: var(--pink); }
 .results-empty { color: var(--grey); }
 
+/* ── Buttons ──────────────────────────────────────────────────────
+   A pixel circle: the round shape is cut as a staircase of whole blocks
+   rather than a smooth arc, the same language as the sprites and the
+   speech bubble. clip-path removes box-shadow along with the corners, so
+   the depth is a drop-shadow filter, which follows the stepped edge. */
 .button-circle {
   border: none;
-  transition: transform .15s, box-shadow .15s, background .15s;
+  border-radius: 0;
+  clip-path: var(--corner-round);
+  background: var(--pink);
+  box-shadow: none;
+  filter: drop-shadow(0 3px 10px rgba(255, 95, 162, 0.55));
+  transition: transform .15s, filter .15s, background .15s;
 }
-.button-circle:hover { transform: translateY(-2px); }
+.button-circle:hover {
+  background: #ff7bb4;
+  transform: translateY(-2px);
+  filter: drop-shadow(0 6px 18px rgba(255, 95, 162, 0.85));
+}
 .button-circle:active { transform: translateY(1px); }

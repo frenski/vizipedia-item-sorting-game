@@ -39,8 +39,12 @@ const lifeGoneHtml = '<span class="life gone"><svg xmlns="http://www.w3.org/2000
    to be readable. The failsafe is there so a stalled asset can never
    leave a player staring at a spinner. */
 let _bootHidden = false;
+/* Set while the boot cover is deliberately holding a "Begin" control. The
+   failsafe below must not sweep the cover away then — it would take the only
+   way to start the game with it. */
+let _bootGateOpen = false;
 function bootDone() {
-  if (_bootHidden) return;
+  if (_bootHidden || _bootGateOpen) return;
   _bootHidden = true;
   const el = document.getElementById('boot');
   if (!el) return;
@@ -117,6 +121,12 @@ const DEFAULTS = {
     fontBody:    "'Nunito', Arial, sans-serif",
     fontDisplay: "'Nunito', Arial, sans-serif",
     cardRadius:  20,
+    /* Speech-bubble shape. `bubbleStep` > 0 cuts the corners as a staircase
+       of whole blocks instead of an arc — the canvas equivalent of a theme's
+       clip-path, so a pixel-art skin can square the bubble off without
+       touching JavaScript. 0 keeps the smooth curve. */
+    bubbleRadius: 16,
+    bubbleStep:   0,
     pixelated:   false    // nearest-neighbour scaling, for pixel-art games
   },
   /* Stylesheet URLs injected before the first frame — webfonts a skin needs */
@@ -126,6 +136,16 @@ const DEFAULTS = {
   /* Optional animated prestory shown before the start card. Absent or with
      no scenes, the game opens on the start card exactly as before. */
   intro: null,
+  /* Settings shared by every item's `reaction`; each item can override any
+     of them. An item with no `reaction` never interrupts the flow. */
+  reactionDefaults: {
+    duration: 2.6,        // seconds on screen, entrance and exit included
+    motion: 'float',      // as the intro: pulse | float | spin | shake | none
+    bubble: 'top',        // the bubble sits 'top' or 'bottom' of the speaker
+    image: null,          // a shared character, if every reaction uses one
+    sprite: null,
+    sound: null
+  },
   items: []
 };
 
@@ -187,7 +207,18 @@ function mergeConfig(base, over) {
    theme stylesheet, then a per-game "themeOverrides" block — so one game
    can retune a colour without forking the stylesheet.
    ─────────────────────────────────────────────────────────────────── */
+/* The build tag off our own <script src="js/main.js?v=N">. Theme
+   stylesheets are injected at runtime, so without this they carry no cache
+   buster and a browser happily keeps serving an old skin against new code —
+   which looks exactly like the theme's values being ignored. */
+const BUILD = (function () {
+  const el = document.querySelector('script[src*="main.js"]');
+  const m = el && el.getAttribute('src').match(/[?&]v=([^&]+)/);
+  return m ? m[1] : '';
+})();
+
 function injectStylesheet(href) {
+  if (BUILD && href.indexOf('?') === -1) href += '?v=' + BUILD;
   return new Promise(resolve => {
     if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return resolve(true);
     const link = document.createElement('link');
@@ -209,11 +240,49 @@ function readTheme(base, overrides) {
     const raw = cs.getPropertyValue(themeToken(k)).trim();
     if (raw) out[k] = raw;
   });
-  /* Two of these are not colours and come back as strings either way */
-  const r = parseFloat(out.cardRadius);
-  out.cardRadius = isNaN(r) ? 20 : Math.max(0, r);
-  out.pixelated  = out.pixelated === true || String(out.pixelated) === '1';
+  /* These are not colours and come back as strings either way */
+  [['cardRadius', 20], ['bubbleRadius', 16], ['bubbleStep', 0]].forEach(([k, d]) => {
+    const n = parseFloat(out[k]);
+    out[k] = isNaN(n) ? d : Math.max(0, n);
+  });
+  out.pixelated = out.pixelated === true || String(out.pixelated) === '1';
   return Object.assign(out, overrides || {});
+}
+
+/* Trace a panel with either rounded or pixel-stepped corners. With `step`
+   set, each corner is a staircase of whole blocks tracking the diagonal —
+   the same shape language a pixel-art stylesheet gets from clip-path, which
+   canvas has no equivalent for. Traced as one path so a fill and its shadow
+   treat the whole outline as a single shape. */
+function tracePanel(ctx, x, y, w, h, radius, step) {
+  const r = Math.max(0, Math.min(radius, w / 2, h / 2));
+  if (!step || step <= 0 || r <= 0) { ctx.roundRect(x, y, w, h, r); return; }
+  const n = Math.max(1, Math.round(r / step));
+  const s = r / n;
+  const R = x + w, B = y + h;
+
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(R - r, y);
+  for (let i = 0; i < n; i++) {                 // top-right, going down
+    ctx.lineTo(R - r + (i + 1) * s, y + i * s);
+    ctx.lineTo(R - r + (i + 1) * s, y + (i + 1) * s);
+  }
+  ctx.lineTo(R, B - r);
+  for (let i = 0; i < n; i++) {                 // bottom-right, going left
+    ctx.lineTo(R - i * s, B - r + (i + 1) * s);
+    ctx.lineTo(R - (i + 1) * s, B - r + (i + 1) * s);
+  }
+  ctx.lineTo(x + r, B);
+  for (let i = 0; i < n; i++) {                 // bottom-left, going up
+    ctx.lineTo(x + r - (i + 1) * s, B - i * s);
+    ctx.lineTo(x + r - (i + 1) * s, B - (i + 1) * s);
+  }
+  ctx.lineTo(x, y + r);
+  for (let i = 0; i < n; i++) {                 // top-left, going right
+    ctx.lineTo(x + i * s, y + r - (i + 1) * s);
+    ctx.lineTo(x + (i + 1) * s, y + r - (i + 1) * s);
+  }
+  ctx.closePath();
 }
 
 /* The opaque bounds of an image, as fractions of its width and height.
@@ -248,6 +317,103 @@ function opaqueBounds(img) {
   }
 }
 
+/* ── Effect sounds ───────────────────────────────────────────────────
+   Short UI blips, synthesised rather than loaded. A game only has to ship
+   the audio that carries meaning — music and voice — and still gets a
+   click, a pickup and a wrong-answer buzz. Square waves on purpose: they
+   sit with pixel art far better than sampled UI clicks would.
+
+   Any of these is overridden by naming a file in `audio` (takeSound,
+   wrongSound and so on); the synth is only the fallback. */
+const SFX = (() => {
+  let ac = null, master = 0.5;
+
+  const ctx = () => {
+    if (ac) return ac;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { ac = new AC(); } catch (_) { ac = null; }
+    return ac;
+  };
+
+  /* One voice: a tone that slides in pitch and fades out. */
+  function tone(f0, f1, dur, type, vol, delay) {
+    const c = ctx();
+    if (!c) return;
+    const t0 = c.currentTime + (delay || 0);
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(f0, t0);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur);
+    /* Exponential ramps cannot touch zero, hence the tiny floor. */
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol * master), t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g);
+    g.connect(c.destination);
+    o.start(t0);
+    o.stop(t0 + dur + 0.02);
+  }
+
+  const VOICES = {
+    click:   () => tone(680, 900, 0.07, 'square', 0.12),
+    take:    () => { tone(520, 880, 0.09, 'square', 0.14);
+                     tone(780, 1240, 0.11, 'triangle', 0.09, 0.05); },
+    correct: () => { tone(660, 990, 0.09, 'square', 0.13);
+                     tone(990, 1320, 0.12, 'square', 0.10, 0.08); },
+    pass:    () => tone(300, 190, 0.11, 'sine', 0.06),
+    wrong:   () => tone(200, 110, 0.22, 'sawtooth', 0.12),
+    life:    () => { tone(440, 150, 0.30, 'sawtooth', 0.13);
+                     tone(220, 90, 0.34, 'square', 0.08, 0.04); },
+    discard: () => tone(260, 150, 0.13, 'square', 0.11),
+    full:    () => { tone(340, 340, 0.08, 'square', 0.11);
+                     tone(340, 240, 0.15, 'square', 0.11, 0.10); }
+  };
+
+  return {
+    setVolume(v) { master = clamp(v, 0, 1); },
+    /* Browsers start the context suspended until a gesture. */
+    resume() { const c = ctx(); if (c && c.state === 'suspended') c.resume().catch(() => {}); },
+    has(name) { return !!VOICES[name]; },
+    play(name) { const v = VOICES[name]; if (v) v(); }
+  };
+})();
+
+/* An <audio> element plus its length, which the intro and reactions use to
+   make sure a line is never cut off mid-word.
+
+   `full` waits for canplaythrough — the whole clip buffered — so a voice
+   line starts instantly instead of stalling on its first play. Music passes
+   false: it streams happily and is far too long to sit behind a loading
+   bar. Either way a slow or missing file resolves on the timeout rather
+   than holding the game up. */
+function loadSound(src, volume, full) {
+  return new Promise(resolve => {
+    let settled = false;
+    const finish = v => { if (!settled) { settled = true; resolve(v); } };
+    try {
+      const a = new Audio();
+      a.preload = 'auto';
+      a.volume = clamp(volume, 0, 1);
+      const ok = () => finish({ audio: a, duration: isFinite(a.duration) ? a.duration : 0 });
+      a.addEventListener(full ? 'canplaythrough' : 'loadedmetadata', ok);
+      /* Metadata still ends the wait for a clip that never reports
+         canplaythrough, so one odd encode cannot stall the preloader. */
+      if (full) a.addEventListener('loadedmetadata', () => setTimeout(ok, 2500));
+      a.addEventListener('error', () => {
+        console.warn('[audio] failed to load:', src);
+        finish(null);
+      });
+      a.src = src;
+      a.load();
+      setTimeout(ok, 8000);
+    } catch (e) {
+      console.warn('[audio] error:', src, e);
+      finish(null);
+    }
+  });
+}
+
 /* How long the bag and its counter react for when something lands. */
 const BAG_POP_MS   = 260;
 const BADGE_POP_MS = 320;
@@ -275,6 +441,12 @@ const laneEase = (p, a) => p + a * Math.sin(2 * Math.PI * p) / (2 * Math.PI);
 
 /* Overshoots its target and rings down to it — the spring at the end of a
    thing landing. Used by the intro's `reveal: "elastic"`. */
+/* Overshoots its target once and settles — a landing with weight to it. */
+const easeOutBack = t => {
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+};
+
 const easeOutElastic = t => {
   if (t <= 0) return 0;
   if (t >= 1) return 1;
@@ -354,7 +526,18 @@ class ItemSortingGame {
       : null;
     this.intro = null;
     this.introSounds = {};
-    this.introAtlases = {};   // scene index → { frames:[{x,y,w,h,d}], total }
+    this.atlases = {};        // key → { frames:[{x,y,w,h,d}], total }
+
+    /* A reaction is a short beat after a pick: the conveyor stops, someone
+       pops up with a speech bubble, then the flow carries on. `reaction` is
+       the one playing now; `queuedReaction` is one waiting for the card to
+       finish flying into the bag, so the pick lands before it is remarked
+       upon. */
+    this.reaction = null;
+    this.queuedReaction = null;
+    this.rxSounds = {};
+    this.rxSoundDur = {};     // seconds, so a bubble can outlast its line
+    this.introSoundDur = {};
 
     this.setupMetaData();
     this.loadAssets();
@@ -406,6 +589,26 @@ class ItemSortingGame {
       const src = item.image || (item.type === 'image' ? item.content : null);
       if (src) jobs.push(this.loadImage(`item_${i}`, ASSET_BASE + src));
       if (item.sound) jobs.push(this.loadItemSound(i, ASSET_BASE + item.sound));
+
+      /* Whatever this item's reaction needs, if it has one. */
+      const rc = this.reactionFor(item);
+      if (!rc) return;
+      if (rc.sprite && rc.sprite.atlas) {
+        jobs.push(this.loadAtlas(`rx_${i}`, rc.sprite, `rxSprite_${i}`));
+      } else if (rc.sprite && rc.sprite.url) {
+        jobs.push(this.loadImage(`rxSprite_${i}`, ASSET_BASE + rc.sprite.url));
+      } else if (rc.image) {
+        jobs.push(this.loadImage(`rxImg_${i}`, ASSET_BASE + rc.image));
+      }
+      if (rc.sound) {
+        const vol = (this.config.audio && this.config.audio.voiceVolume) ||
+                    (this.config.audio && this.config.audio.effectsVolume) || 0.9;
+        jobs.push(loadSound(ASSET_BASE + rc.sound, vol, true).then(r => {
+          if (!r) return;
+          this.rxSounds[i] = r.audio;
+          this.rxSoundDur[i] = r.duration;
+        }));
+      }
     });
     if (this.config.audio) jobs.push(this.loadAudio());
 
@@ -417,7 +620,7 @@ class ItemSortingGame {
         const list = sc.images || (sc.image ? [sc.image] : []);
         list.forEach((src, k) => jobs.push(this.loadImage(`intro_${i}_${k}`, ASSET_BASE + src)));
         if (sc.sprite && sc.sprite.atlas) {
-          jobs.push(this.loadAtlas(i, sc.sprite));
+          jobs.push(this.loadAtlas(`intro_${i}`, sc.sprite, `introSprite_${i}`));
         } else if (sc.sprite && sc.sprite.url) {
           jobs.push(this.loadImage(`introSprite_${i}`, ASSET_BASE + sc.sprite.url));
         }
@@ -444,7 +647,15 @@ class ItemSortingGame {
         .catch(() => { this.T = readTheme(DEFAULTS.theme, this.themeOverrides); })
     );
 
-    await Promise.all(jobs);
+    /* Everything above is queued, not awaited, so the count is the real
+       total: images, sprite atlases, voice lines and the theme. */
+    this.assetsTotal = jobs.length;
+    this.assetsDone = 0;
+    this.paintBoot();
+    await Promise.all(jobs.map(p => Promise.resolve(p).then(
+      v => { this.assetsDone++; this.paintBoot(); return v; },
+      e => { this.assetsDone++; this.paintBoot(); console.warn('[assets]', e); }
+    )));
 
     this.resize();
     window.addEventListener('resize', () => this.resize());
@@ -458,17 +669,66 @@ class ItemSortingGame {
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('gameContainer').style.display = 'block';
-    bootDone();
     this.ready = true;
 
-    if (this.introCfg) {
-      this.startIntro();
-    } else {
-      document.getElementById('gameStart').style.display = 'block';
-      /* Draw one frame behind the start popup so the lane and bag are
-         already there rather than appearing at the first tap. */
+    if (this.introCfg && this.introHasVoice()) {
+      /* An intro that speaks has to start from a tap. Browsers refuse audio
+         until the player has interacted, and a voice line fired on page
+         load is rejected once and never heard — which is exactly how an
+         intro ends up silent while the looping music, retried on the first
+         touch, comes through fine. */
       this.draw();
+      this.showBeginGate();
+    } else {
+      bootDone();
+      if (this.introCfg) this.startIntro();
+      else {
+        document.getElementById('gameStart').style.display = 'block';
+        /* Draw one frame behind the start popup so the lane and bag are
+           already there rather than appearing at the first tap. */
+        this.draw();
+      }
     }
+  }
+
+  introHasVoice() {
+    if (!this.introCfg) return false;
+    if (this.introCfg.music) return true;
+    return this.introCfg.scenes.some(sc => sc.sound);
+  }
+
+  paintBoot() {
+    const bar = document.getElementById('bootBar');
+    const pct = document.getElementById('bootPct');
+    if (!bar && !pct) return;
+    const total = Math.max(1, this.assetsTotal || 1);
+    const n = Math.round(100 * Math.min(1, (this.assetsDone || 0) / total));
+    if (bar && bar.firstElementChild) bar.firstElementChild.style.width = n + '%';
+    if (pct) pct.textContent = n + '%';
+  }
+
+  /* Loading is finished; swap the spinner for the control that starts it. */
+  showBeginGate() {
+    const boot = document.getElementById('boot');
+    const ring = boot && boot.querySelector('.boot-ring');
+    const bar  = document.getElementById('bootBar');
+    const pct  = document.getElementById('bootPct');
+    const btn  = document.getElementById('bootBegin');
+    if (ring) ring.style.display = 'none';
+    if (bar) bar.style.display = 'none';
+    if (pct) pct.textContent = '';
+    if (!btn) { bootDone(); this.startIntro(); return; }
+    _bootGateOpen = true;
+    btn.textContent = _getUIText('btn_start');
+    btn.style.display = 'block';
+    btn.addEventListener('click', () => {
+      /* Inside the gesture, so the browser lets audio through. */
+      _bootGateOpen = false;
+      SFX.resume();
+      this.playSound('click');
+      bootDone();
+      this.startIntro();
+    }, { once: true });
   }
 
   /* A sprite sheet described by a JSON atlas (the Aseprite / ludo.ai shape:
@@ -480,7 +740,7 @@ class ItemSortingGame {
      scene names a `url`: these files carry a `meta.image` from whatever
      generated them, and in every one here it points at a filename that does
      not exist. Trusting it would break the scene for no benefit. */
-  loadAtlas(i, spec) {
+  loadAtlas(key, spec, imgKey) {
     const dir = spec.atlas.replace(/[^/]*$/, '');
     return fetch(ASSET_BASE + spec.atlas)
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -496,11 +756,11 @@ class ItemSortingGame {
           .map(f => ({ x: f.frame.x, y: f.frame.y, w: f.frame.w, h: f.frame.h,
                        d: f.duration || 0 }));
         if (!frames.length) throw new Error('atlas has no usable frames');
-        this.introAtlases[i] = {
+        this.atlases[key] = {
           frames,
           total: frames.reduce((a, f) => a + f.d, 0)
         };
-        return this.loadImage(`introSprite_${i}`, ASSET_BASE + (spec.url || dir + 'sprite.png'));
+        return this.loadImage(imgKey, ASSET_BASE + (spec.url || dir + 'sprite.png'));
       })
       .catch(e => {
         /* A broken atlas must not take the intro down with it — the scene
@@ -510,13 +770,12 @@ class ItemSortingGame {
   }
 
   loadIntroSound(key, src) {
-    return new Promise(resolve => {
-      try {
-        const a = new Audio(src);
-        a.volume = (this.config.audio && this.config.audio.effectsVolume) || 0.6;
-        this.introSounds[key] = a;
-      } catch (e) { console.warn(`[intro] failed to load sound: ${src}`, e); }
-      resolve();
+    const vol = (this.config.audio && this.config.audio.voiceVolume) ||
+                (this.config.audio && this.config.audio.effectsVolume) || 0.9;
+    return loadSound(src, vol, true).then(r => {
+      if (!r) return;
+      this.introSounds[key] = r.audio;
+      this.introSoundDur[key] = r.duration;
     });
   }
 
@@ -552,9 +811,11 @@ class ItemSortingGame {
     const vol = a.effectsVolume != null ? a.effectsVolume : 0.5;
     try {
       if (a.backgroundMusic) {
-        this.bgMusic = new Audio(ASSET_BASE + a.backgroundMusic);
-        this.bgMusic.loop = true;
-        this.bgMusic.volume = a.musicVolume != null ? a.musicVolume : 0.3;
+        /* Not `full`: a minutes-long track streams fine and has no business
+           holding up a loading bar. */
+        const r = await loadSound(ASSET_BASE + a.backgroundMusic,
+                                  a.musicVolume != null ? a.musicVolume : 0.3, false);
+        if (r) { this.bgMusic = r.audio; this.bgMusic.loop = true; }
       }
       [['takeSound', 'take'], ['passSound', 'pass'], ['correctSound', 'correct'],
        ['wrongSound', 'wrong'], ['lifeLostSound', 'life'], ['discardSound', 'discard']]
@@ -564,16 +825,22 @@ class ItemSortingGame {
           s.volume = vol;
           this.sounds[name] = s;
         });
+      SFX.setVolume(vol);
       this.audioLoaded = true;
     } catch (e) { console.warn('[audio] error loading audio:', e); }
   }
 
+  /* A named file wins; otherwise the synth covers it. */
   playSound(name) {
+    if (this.isMuted) return;
     const s = this.sounds[name];
-    if (!s || this.isMuted || !this.audioLoaded) return;
-    const clone = s.cloneNode();
-    clone.volume = s.volume;
-    clone.play().catch(() => {});
+    if (s && this.audioLoaded) {
+      const clone = s.cloneNode();
+      clone.volume = s.volume;
+      clone.play().catch(() => {});
+      return;
+    }
+    SFX.play(name);
   }
 
   playItemSound(item) {
@@ -587,15 +854,32 @@ class ItemSortingGame {
   playMusic() {
     if (this.bgMusic && !this.isMuted) this.bgMusic.play().catch(() => {});
   }
+  /* Rewinds: for the end of a run, where the next play should start over. */
   stopMusic() {
     if (this.bgMusic) { this.bgMusic.pause(); this.bgMusic.currentTime = 0; }
+  }
+  /* Holds position: for muting, where coming back should pick up where it
+     left off rather than restarting the track. */
+  pauseMusic() {
+    if (this.bgMusic) this.bgMusic.pause();
   }
   toggleMute() {
     this.isMuted = !this.isMuted;
     const btn = document.getElementById('muteBtn');
     if (btn) btn.textContent = this.isMuted ? '🔇' : '🔊';
-    if (this.isMuted) this.stopMusic();
-    else if (this.running) this.playMusic();
+    if (this.isMuted) {
+      this.pauseMusic();
+      const im = this.introSounds.music;
+      if (im) im.pause();
+      return;
+    }
+    /* Unmuting resumes whatever should be playing. The old check for a
+       running round meant unmuting on the intro, the start card or the
+       results screen left the game silent until the next round began. */
+    SFX.resume();
+    const im = this.introSounds.music;
+    if (this.intro && im) im.play().catch(() => {});
+    else this.playMusic();
   }
 
   /* ─────────────────────────────────────────────────────────────────────
@@ -820,10 +1104,15 @@ class ItemSortingGame {
     this.intro = { i: 0, t: 0, scenes: this.introCfg.scenes };
     this.playIntroSound(0);
 
+    /* With no intro-specific track, the game's own music starts here and
+       keeps playing straight through the start card and into the round —
+       stopping and restarting the same file at kickoff is a seam. */
     const music = this.introSounds.music;
     if (music && !this.isMuted) {
       music.loop = true;
       music.play().catch(() => {});
+    } else if (!this.isMuted) {
+      this.playMusic();
     }
 
     this.lastFrame = performance.now();
@@ -836,9 +1125,15 @@ class ItemSortingGame {
     return (sc[key] !== undefined) ? sc[key] : this.introCfg[key];
   }
 
+  /* A scene lasts at least as long as its voice line, plus a breath. The
+     written durations were set before the VO existed, and several lines run
+     longer than the scene they belong to — without this they are cut off
+     mid-word. */
   sceneDuration() {
     const sc = this.intro.scenes[this.intro.i] || {};
-    return ((sc.duration || this.introCfg.sceneDuration) || 3.2) * 1000;
+    const written = ((sc.duration || this.introCfg.sceneDuration) || 3.2) * 1000;
+    const vo = (this.introSoundDur[this.intro.i] || 0) * 1000;
+    return vo ? Math.max(written, vo + 700) : written;
   }
 
   /* Entry and exit lengths, capped so a very short scene still shows
@@ -848,12 +1143,30 @@ class ItemSortingGame {
     return { in: Math.min(450, dur * 0.3), out: Math.min(350, dur * 0.25) };
   }
 
+  /* Returns the play() promise so the caller can tell whether the browser
+     actually let it through — a rejection here is what silences an intro
+     that starts before the player has touched anything. */
   playIntroSound(i) {
     const s = this.introSounds[i];
-    if (!s || this.isMuted) return;
+    if (!s || this.isMuted) return null;
     const clone = s.cloneNode();
     clone.volume = s.volume;
-    clone.play().catch(() => {});
+    this.duckMusic(this.introSoundDur[i] || 0);
+    return clone.play();
+  }
+
+  /* Pull the music down under a voice line and let it back up after. Music
+     that sits at a readable level on its own still buries dialogue. */
+  duckMusic(seconds) {
+    if (!this.bgMusic) return;
+    const a = this.config.audio || {};
+    const base = a.musicVolume != null ? a.musicVolume : 0.3;
+    const duck = a.musicDuck != null ? a.musicDuck : 0.3;
+    this.bgMusic.volume = clamp(base * duck, 0, 1);
+    clearTimeout(this._duckTimer);
+    this._duckTimer = setTimeout(() => {
+      if (this.bgMusic) this.bgMusic.volume = clamp(base, 0, 1);
+    }, Math.max(400, seconds * 1000 + 300));
   }
 
   /* A tap does not cut straight to the next scene — it jumps to the start
@@ -989,7 +1302,7 @@ class ItemSortingGame {
       ctx.translate(0, cy);
       if (r.settled) this.applyMotion(motion, r.motionT, 0);
       ctx.scale(r.scale, r.scale);
-      this.drawSpriteFrame(sprite, sc.sprite, 0, 0, size, t, this.introAtlases[i]);
+      this.drawSpriteFrame(sprite, sc.sprite, 0, 0, size, t, this.atlases[`intro_${i}`]);
       ctx.restore();
       return;
     }
@@ -1186,6 +1499,210 @@ class ItemSortingGame {
     ctx.globalAlpha = 1;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════
+     Reactions
+
+     An item can carry a `reaction`: take it and the conveyor stops, someone
+     pops up with a speech bubble for a couple of seconds, and the flow
+     picks up where it left off. It is the same vocabulary as the intro —
+     a sprite atlas or a still with a `motion` — so art moves between the
+     two without changes.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  /* An item's reaction merged over the shared defaults, or null if it has
+     none. `text` is what makes one worth showing, so a reaction without it
+     is treated as absent rather than popping an empty bubble. */
+  reactionFor(item) {
+    if (!item || !item.reaction) return null;
+    const rc = Object.assign({}, this.config.reactionDefaults, item.reaction);
+    return rc.text ? rc : null;
+  }
+
+  startReaction(item, index) {
+    const cfg = this.reactionFor(item);
+    if (!cfg) return;
+    /* Same as the intro: the bubble waits for the line to finish. */
+    const written = Math.max(600, (cfg.duration || 2.6) * 1000);
+    const vo = (this.rxSoundDur[index] || 0) * 1000;
+    this.reaction = {
+      cfg, index,
+      t: 0,
+      duration: vo ? Math.max(written, vo + 600) : written
+    };
+    const s = this.rxSounds[index];
+    if (s && !this.isMuted) {
+      const clone = s.cloneNode();
+      clone.volume = s.volume;
+      this.duckMusic(this.rxSoundDur[index] || 0);
+      clone.play().catch(() => {});
+    }
+  }
+
+  /* Entrance and exit lengths, capped so a short reaction still holds. */
+  reactionFades() {
+    const d = this.reaction.duration;
+    return { in: Math.min(340, d * 0.28), out: Math.min(260, d * 0.22) };
+  }
+
+  updateReaction(dt) {
+    const R = this.reaction;
+    R.t += dt;
+    if (R.t >= R.duration) {
+      this.reaction = null;
+      /* Give the lane a beat before the next item, as after any resolve. */
+      this.gapLeft = Math.max(this.gapLeft, this.config.gap * 1000 * 0.6);
+    }
+  }
+
+  /* A tap jumps to the exit rather than cutting, so it never flickers. */
+  dismissReaction() {
+    const R = this.reaction;
+    if (!R) return;
+    const out = this.reactionFades().out;
+    if (R.t < R.duration - out) R.t = R.duration - out;
+  }
+
+  drawReaction() {
+    const ctx = this.ctx, T = this.T, L = this.L;
+    const R = this.reaction, cfg = R.cfg;
+    const f = this.reactionFades();
+
+    let a = 1;
+    if (R.t < f.in) a = R.t / f.in;
+    else if (R.t > R.duration - f.out) a = (R.duration - R.t) / f.out;
+    a = clamp(a, 0, 1);
+    const e = easeOut(a);
+
+    /* Enough of a dim to carry the text, not so much that the bag and the
+       lane stop being the thing you are playing. */
+    ctx.save();
+    ctx.globalAlpha = e * 0.42;
+    ctx.fillStyle = '#080a16';
+    ctx.fillRect(0, 0, this.W, this.H);
+    ctx.restore();
+
+    /* Speaker centred, bubble stacked over or under them. Measured first:
+       the character takes whatever height the bubble leaves, so a long line
+       shrinks the speaker rather than pushing either out of the lane. */
+    const band = L.laneBottom - L.laneTop;
+    const m = this.measureBubble(cfg.text, Math.min(this.W - 44, 480));
+    const GAP = 14;
+    const room = band - m.h - GAP - 16;
+    const charH = clamp(Math.min(this.W * 0.30, this.H * 0.26, room), 64, 220);
+
+    const above = (cfg.bubble || 'top') !== 'bottom';
+    const groupH = charH + GAP + m.h;
+    const top = L.laneY - groupH / 2;
+    const bubbleCy = above ? top + m.h / 2 : top + charH + GAP + m.h / 2;
+    const charCy   = above ? top + m.h + GAP + charH / 2 : top + charH / 2;
+
+    ctx.save();
+    ctx.translate(this.W / 2, 0);
+    ctx.globalAlpha = e;
+
+    /* The character rises into place with a little overshoot. */
+    ctx.save();
+    ctx.translate(0, charCy + (1 - e) * 26);
+    const pop = lerp(0.72, 1, easeOutBack(a));
+    ctx.scale(pop, pop);
+    this.applyMotion(cfg.motion || 'none', R.t, 0);
+    this.drawReactionArt(R.index, cfg, charH);
+    ctx.restore();
+
+    /* The bubble arrives a beat later, so it reads as them speaking. */
+    const bub = clamp((R.t - 130) / f.in, 0, 1);
+    const bubA = (R.t > R.duration - f.out) ? 1 : easeOut(bub);
+    ctx.save();
+    ctx.globalAlpha = e * bubA;
+    this.drawBubble(m, 0, bubbleCy, above ? 'down' : 'up',
+                    lerp(0.8, 1, easeOutBack(bubA)));
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  drawReactionArt(index, cfg, h) {
+    const ctx = this.ctx;
+    const sprite = this.images[`rxSprite_${index}`];
+    if (sprite) {
+      this.drawSpriteFrame(sprite, cfg.sprite || {}, 0, 0, h,
+                           this.reaction.t, this.atlases[`rx_${index}`]);
+      return;
+    }
+    const img = this.images[`rxImg_${index}`];
+    if (!img) return;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const w = h * ratio;
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+  }
+
+  /* Size a bubble to its text. Separate from drawing it because the layout
+     has to know how tall it is before it can place the speaker under or
+     over it. */
+  measureBubble(text, maxW) {
+    const ctx = this.ctx, T = this.T;
+    const fs = clamp(this.W * 0.032, 14, 21);
+    ctx.font = `700 ${fs}px ${T.fontBody}`;
+    const padX = 18, padY = 14, lh = fs * 1.34;
+    const lines = this.wrapText(text, maxW - padX * 2);
+    let tw = 0;
+    lines.forEach(l => { tw = Math.max(tw, ctx.measureText(l).width); });
+    return {
+      lines, fs, lh,
+      w: Math.min(maxW, tw + padX * 2),
+      h: lines.length * lh + padY * 2
+    };
+  }
+
+  /* `tail` points at the speaker: 'down' when the bubble sits above them,
+     'up' when it sits below. The corner shape comes from the theme, so a
+     pixel skin squares it off without touching this. */
+  drawBubble(m, cx, cy, tail, scale) {
+    const ctx = this.ctx, T = this.T;
+    const w = m.w, h = m.h;
+    const step = T.bubbleStep, tw = 14;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 5;
+    ctx.fillStyle = T.card;
+    ctx.beginPath();
+    tracePanel(ctx, -w / 2, -h / 2, w, h, T.bubbleRadius, step);
+
+    /* The tail joins the same path, so fill and shadow see one shape. With
+       a stepped theme it is a staircase of blocks rather than a smooth
+       wedge, to match the corners. */
+    const dir = (tail === 'up') ? -1 : 1;
+    const edge = dir * h / 2;
+    if (step > 0) {
+      const n = Math.max(2, Math.round(tw / step));
+      const s = tw / n;
+      for (let i = 0; i < n; i++) {
+        const half = (n - i) * s;
+        ctx.rect(-half, edge + dir * i * s - (dir < 0 ? s : 0), half * 2, s);
+      }
+    } else {
+      ctx.moveTo(-tw * 0.55, edge - dir * 2);
+      ctx.lineTo(tw * 0.2, edge + dir * tw);
+      ctx.lineTo(tw * 0.75, edge - dir * 2);
+    }
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = T.cardText;
+    ctx.font = `700 ${m.fs}px ${T.fontBody}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const top = -((m.lines.length - 1) * m.lh) / 2;
+    m.lines.forEach((l, k) => ctx.fillText(l, 0, top + k * m.lh));
+    ctx.restore();
+  }
+
   /* ─────────────────────────────────────────────────────────────────────
      Round flow
      ───────────────────────────────────────────────────────────────────── */
@@ -1211,6 +1728,8 @@ class ItemSortingGame {
     this.current = null;
     this.flight = null;
     this.pending = null;
+    this.reaction = null;
+    this.queuedReaction = null;
     this.bagPop = 0;
     this.badgePop = 0;
     this.tray = [];
@@ -1294,6 +1813,7 @@ class ItemSortingGame {
     if (this.tray.length >= this.config.tray.capacity) {
       /* Nothing is decided yet: the conveyor stops and the player picks
          what to throw off — or throws this one away instead. */
+      this.playSound('full');
       this.pending = { item, x: this.W / 2, y: this.L.laneY, t: 0,
                        fromX: this.cardX(c), fromY: this.L.laneY + c.dy };
       this.measureCard(this.pending);
@@ -1328,6 +1848,10 @@ class ItemSortingGame {
     /* Everything the player keeps flies into the bag, whether it came off
        the lane or out of a swap. The bag reacts when it lands, not when the
        flick happens, so the two read as one movement. */
+    /* Queued, not started: it plays once the card has finished flying into
+       the bag, so the pick lands before anyone remarks on it. */
+    if (this.reactionFor(item)) this.queuedReaction = { item, index: item.index };
+
     /* Bare cards fly the artwork, which sits above the caption rather than
        at the card's centre — start it from where the icon actually is, or it
        visibly jumps on the first frame. */
@@ -1472,6 +1996,8 @@ class ItemSortingGame {
       if (!this.running) return;
       const p = pos(e);
 
+      if (this.reaction) { e.preventDefault(); this.dismissReaction(); return; }
+
       if (this.pending) {
         /* Tapping the pending card lets it go; tapping a slot swaps. */
         if (this.hitPending(p)) { this.resolvePending(-1); return; }
@@ -1538,6 +2064,12 @@ class ItemSortingGame {
         return;
       }
       if (!this.running) return;
+      if (this.reaction) {
+        if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+          e.preventDefault(); this.dismissReaction();
+        }
+        return;
+      }
       if (this.pending) {
         if (e.key === 'Escape') { this.resolvePending(-1); return; }
         const n = parseInt(e.key, 10);
@@ -1555,12 +2087,35 @@ class ItemSortingGame {
       }
     });
 
-    document.getElementById('startBtn').addEventListener('click', () => this.startGame());
-    document.getElementById('restartBtn').addEventListener('click', () => this.restart());
+    /* Browsers hold audio until the player has interacted. The intro starts
+       on page load, so the first tap anywhere is what actually lets music
+       and effects through — not the Start button, which may never be
+       reached if the intro is skipped. */
+    const unlock = () => {
+      SFX.resume();
+      if (!this.isMuted) this.playMusic();
+      document.removeEventListener('pointerdown', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('keydown', unlock);
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      this.playSound('click');
+      this.startGame();
+    });
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      this.playSound('click');
+      this.restart();
+    });
     const mute = document.getElementById('muteBtn');
     if (mute) mute.addEventListener('click', () => this.toggleMute());
     const skip = document.getElementById('introSkip');
-    if (skip) skip.addEventListener('click', e => { e.stopPropagation(); this.endIntro(); });
+    if (skip) skip.addEventListener('click', e => {
+      e.stopPropagation();
+      this.playSound('click');
+      this.endIntro();
+    });
   }
 
   hitCard(c, p) {
@@ -1653,8 +2208,16 @@ class ItemSortingGame {
         this.bagPop   = BAG_POP_MS;
         this.badgePop = BADGE_POP_MS;
         this.flight = null;
+        if (this.queuedReaction) {
+          const q = this.queuedReaction;
+          this.queuedReaction = null;
+          this.startReaction(q.item, q.index);
+        }
       }
     }
+
+    /* The conveyor waits while someone is talking. */
+    if (this.reaction) { this.updateReaction(dt); return; }
 
     if (this.pending) { this.pending.t += dt; return; }
     if (!this.running) return;
@@ -1777,17 +2340,17 @@ class ItemSortingGame {
     if (this.current && !this.current.resolved) this.drawCard(this.current);
     if (this.flight) this.drawFlight();
     if (this.pending) this.drawPendingPrompt();
+    if (this.reaction) this.drawReaction();
     this.drawToasts();
   }
 
   drawLane() {
     const ctx = this.ctx, L = this.L, T = this.T;
-    /* The tinted strip is the conveyor, so it has to be at least as tall as
-       what is travelling on it — a bare card's artwork is far bigger than
-       the old fixed 300px and was poking out of the top. */
-    const cardH = (this.current && this.current.h) || 0;
-    const band  = Math.max(150, L.laneBottom - L.laneTop);
-    const h = clamp(Math.max(cardH + 56, this.H * 0.30), 150, band);
+    /* The conveyor is the whole lane band, a fixed part of the layout.
+       Sizing it to whatever card happens to be on it made the strip grow and
+       shrink as items came and went — the band has to be a fixed piece of
+       furniture, and cards are already measured to fit inside it. */
+    const h = Math.max(150, L.laneBottom - L.laneTop - 8);
     ctx.fillStyle = T.lane;
     ctx.beginPath();
     ctx.roundRect(0, L.laneY - h / 2, this.W, h, 0);

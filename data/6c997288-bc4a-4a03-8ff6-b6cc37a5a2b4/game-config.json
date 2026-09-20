@@ -1,11 +1,9 @@
 {
   "title": "Left on Read",
   "subTitle": "They've seen it. They haven't replied. Six things fit in your night — no right answers, only whether your own choices hang together.",
-
   "mode": "consistency",
   "order": "random",
   "duration": "finite",
-
   "intro": {
     "sceneDuration": 3.2,
     "transition": "fade",
@@ -13,97 +11,345 @@
     "skippable": true,
     "skipStartCard": false,
     "scenes": [
-      { "text": "It's 2am. Everyone is asleep.",
-        "image": "sleep_fine_hd.png",     "motion": "pulse" },
-
-      { "text": "Except you.",
-        "sprite": { "atlas": "sprite-annoyed-face/sprite.json" },
-        "motion": "float", "duration": 3.4 },
-
-      { "text": "You're up for something.",
-        "image": "dont_know_yet_hd.png",   "motion": "float" },
-
-      { "text": "It's your choice. And in fact, you are not alone",
-        "images": ["pizza_slice_hd.png", "wings.png", "sparkling_water.png"],
-        "motion": "float", "duration": 3.6 },
-
-      { "text": "Scupid, Slaten and Scorny are here to tease you.",
-        "images": ["Scupid.png", "Slaten.png", "Scorny.png"],
+      {
+        "text": "It's 2am. Everyone is asleep.",
+        "sprite": {
+          "atlas": "sprite-sleeping-moon/sprite.json"
+        },
+        "motion": "pulse",
+        "duration": 3.2,
+        "sound": "audio/scene0.mp3"
+      },
+      {
+        "text": "Except you.",
+        "sprite": {
+          "atlas": "sprite-annoyed-face/sprite.json"
+        },
+        "motion": "float",
+        "duration": 3.4,
+        "sound": "audio/scene1.mp3"
+      },
+      {
+        "text": "You're up for something.",
+        "image": "dont_know_yet_hd.png",
+        "motion": "float",
+        "sound": "audio/scene2.mp3"
+      },
+      {
+        "text": "It's your choice. And in fact, you are not alone ...",
+        "images": [
+          "pizza_slice_hd.png",
+          "wings.png",
+          "sparkling_water.png"
+        ],
+        "motion": "float",
+        "duration": 3.6,
+        "sound": "audio/scene3.mp3"
+      },
+      {
+        "text": "Scupid, Slaten and Scorny are here to tease you.",
+        "images": [
+          "Scupid.png",
+          "Slaten.png",
+          "Scorny.png"
+        ],
         "reveal": "rush",
-        "revealDuration": 0.7, "hold": 0.4, "exitDuration": 0.5,
-        "revealScale": 0.05, "exitScale": 3.4,
-        "motion": "float", "duration": 4.8, "transition": "fade" }
+        "revealDuration": 0.7,
+        "hold": 0.4,
+        "exitDuration": 0.5,
+        "revealScale": 0.05,
+        "exitScale": 3.4,
+        "holdLast": false,
+        "motion": "float",
+        "duration": 4.0,
+        "transition": "fade",
+        "sound": "audio/scene4.mp3"
+      }
     ]
   },
-
   "cardStyle": "bare",
-
   "itemDuration": 3.8,
   "acceleration": 0.006,
   "minItemDuration": 2.2,
   "gap": 0.35,
   "totalItems": 30,
-
   "maxLives": 3,
-  "tray": { "capacity": 6, "label": "WHAT YOU DID", "image": "bag.png" },
-
+  "tray": {
+    "capacity": 6,
+    "label": "WHAT YOU DID",
+    "image": "bag.png"
+  },
   "scoring": {
     "take": 5,
     "completionBonus": 40
   },
-
   "rules": {
-    "contradiction": { "enabled": true, "lives": 1 },
-    "freeze":        { "enabled": true, "afterItems": 8, "lives": 1 },
-    "stall":         { "enabled": true, "streak": 3, "requireHover": true, "lives": 1 }
+    "contradiction": {
+      "enabled": true,
+      "lives": 1
+    },
+    "freeze": {
+      "enabled": true,
+      "afterItems": 8,
+      "lives": 1
+    },
+    "stall": {
+      "enabled": true,
+      "streak": 3,
+      "requireHover": true,
+      "lives": 1
+    }
   },
-
   "theme": "neon-pixel",
   "fonts": [
     "https://fonts.googleapis.com/css2?family=DotGothic16&family=Space+Mono:wght@400;700&display=swap"
   ],
-
   "items": [
-    { "image": "left_on_read.png",          "content": "Check whether they've read it",          "short": "Check if read",       "pairId": "seen" },
-    { "image": "last_seen.png",             "content": "Check when they were last online",       "short": "Check last seen",     "pairId": "seen" },
-
-    { "image": "type_delete.png",           "content": "Type the message out, then delete it",   "short": "Type and delete",     "pairId": "unsent" },
-    { "image": "draft_unsent.png",          "content": "Leave it sitting in your drafts",        "short": "Left in drafts",      "pairId": "unsent" },
-
-    { "image": "story_views.png",           "content": "See who watched your story",             "short": "Story views",         "pairId": "watching" },
-    { "image": "their_following.png",       "content": "Check who they've started following",    "short": "Their following",     "pairId": "watching" },
-
-    { "image": "go_quiet_hd.png",           "content": "Put the phone in aeroplane mode",        "short": "Aeroplane mode",      "pairId": "quiet" },
-    { "image": "face_down_hd.png",          "content": "Turn it face down and leave it there",   "short": "Face down",           "pairId": "quiet" },
-
-    { "image": "feel_it_dont_send_hd.png",  "content": "Feel it. Don't send it.",                "short": "Feel it, don't send", "pairId": "unsaid" },
-    { "image": "never_mention_it_hd.png",   "content": "Bin the message and never mention it",   "short": "Bin it, say nothing", "pairId": "unsaid" },
-
-    { "image": "double_text.png",           "content": "Send a second message on top",           "short": "Double text" },
-    { "image": "send_once.png",             "content": "Send one clear message, then stop",      "short": "Send once" },
-    { "image": "just_say_it.png",           "content": "Say what you actually mean",             "short": "Just say it" },
-    { "image": "screenshot_it.png",         "content": "Screenshot the whole thread",            "short": "Screenshot it" },
-    { "image": "scroll_back.png",           "content": "Ask the group chat what it means",       "short": "Ask the group chat" },
-    { "image": "post_for_them.png",         "content": "Scroll back through the whole thread",   "short": "Scroll it back" },
-    { "image": "something_else.png",        "content": "Forward it to someone else",             "short": "Forward it" },
-    { "image": "ask_the_gc.png",            "content": "Post something and see who looks",       "short": "Post something" },
-    { "image": "phone_glance.png",          "content": "Glance at your phone again",             "short": "Glance again" },
-    { "image": "mute.png",                  "content": "Mute the conversation",                  "short": "Mute it" },
-    { "image": "not_bothered.png",          "content": "Flick the notification away",            "short": "Flick it away" },
-    { "image": "probably_busy.png",         "content": "Decide they're probably just busy",      "short": "Probably busy" },
-    { "image": "mildly_annoying_hd.png",    "content": "Decide it's mildly annoying, no more",   "short": "Mildly annoying" },
-    { "image": "dont_know_yet_hd.png",      "content": "Admit you don't know yet",               "short": "Don't know yet" },
-    { "image": "reply_at_3pm.png",          "content": "Sit on it and reply hours later",        "short": "Reply later" },
-    { "image": "in_person.png",             "content": "Ask to talk about it over coffee",       "short": "Talk in person" },
-    { "image": "doorbell.png",              "content": "Go round and ring the bell",             "short": "Ring the bell" },
-    { "image": "other_plans.png",           "content": "Make other plans for the evening",       "short": "Other plans" },
-    { "image": "carry_on_hd.png",           "content": "Get on with your own work",              "short": "Carry on" },
-    { "image": "play_button.png",           "content": "Put something on and actually watch it", "short": "Put something on" },
-    { "image": "better_alone_hd.png",       "content": "Sit with it on your own for a while",    "short": "Sit with it" },
-    { "image": "sleep_fine_hd.png",         "content": "Go to bed and sleep fine",               "short": "Sleep fine" },
-    { "image": "pizza_slice_hd.png",        "content": "Order a pizza",                          "short": "Pizza" },
-    { "image": "wings.png",                 "content": "Order wings as well",                    "short": "Wings" },
-    { "image": "corner_shop_bag.png",       "content": "Walk to the corner shop",                "short": "Corner shop" },
-    { "image": "sparkling_water.png",       "content": "Open a sparkling water, change the subject", "short": "Sparkling water" }
-  ]
+    {
+      "image": "left_on_read.png",
+      "content": "Check whether they've read it",
+      "short": "Check if read",
+      "pairId": "seen"
+    },
+    {
+      "image": "last_seen.png",
+      "content": "Check when they were last online",
+      "short": "Check last seen",
+      "pairId": "seen"
+    },
+    {
+      "image": "type_delete.png",
+      "content": "Type the message out, then delete it",
+      "short": "Type and delete",
+      "pairId": "unsent"
+    },
+    {
+      "image": "draft_unsent.png",
+      "content": "Leave it sitting in your drafts",
+      "short": "Left in drafts",
+      "pairId": "unsent"
+    },
+    {
+      "image": "story_views.png",
+      "content": "See who watched your story",
+      "short": "Story views",
+      "pairId": "watching",
+      "reaction": {
+        "sprite": {
+          "atlas": "sprite-scorny-kiss/sprite.json"
+        },
+        "text": "They looked. Twice.",
+        "bubble": "top",
+        "sound": "audio/reaction_story_views.mp3"
+      }
+    },
+    {
+      "image": "their_following.png",
+      "content": "Check who they've started following",
+      "short": "Their following",
+      "pairId": "watching"
+    },
+    {
+      "image": "go_quiet_hd.png",
+      "content": "Put the phone in aeroplane mode",
+      "short": "Aeroplane mode",
+      "pairId": "quiet"
+    },
+    {
+      "image": "face_down_hd.png",
+      "content": "Turn it face down and leave it there",
+      "short": "Face down",
+      "pairId": "quiet"
+    },
+    {
+      "image": "feel_it_dont_send_hd.png",
+      "content": "Feel it. Don't send it.",
+      "short": "Feel it, don't send",
+      "pairId": "unsaid"
+    },
+    {
+      "image": "never_mention_it_hd.png",
+      "content": "Bin the message and never mention it",
+      "short": "Bin it, say nothing",
+      "pairId": "unsaid"
+    },
+    {
+      "image": "double_text.png",
+      "content": "Send a second message on top",
+      "short": "Double text",
+      "reaction": {
+        "sprite": {
+          "atlas": "sprite-scupid-love/sprite.json"
+        },
+        "text": "Two messages. Now they definitely know.",
+        "bubble": "top",
+        "sound": "audio/reaction_double_text.mp3"
+      }
+    },
+    {
+      "image": "send_once.png",
+      "content": "Send one clear message, then stop",
+      "short": "Send once"
+    },
+    {
+      "image": "just_say_it.png",
+      "content": "Say what you actually mean",
+      "short": "Just say it",
+      "reaction": {
+        "sprite": {
+          "atlas": "sprite-scupid-love/sprite.json"
+        },
+        "text": "Oh, we're being brave now?",
+        "bubble": "top",
+        "sound": "audio/reaction_just_say_it.mp3"
+      }
+    },
+    {
+      "image": "screenshot_it.png",
+      "content": "Screenshot the whole thread",
+      "short": "Screenshot it",
+      "reaction": {
+        "image": "Slaten.png",
+        "text": "Evidence. For the trial.",
+        "bubble": "bottom",
+        "sound": "audio/reaction_screenshot_it.mp3"
+      }
+    },
+    {
+      "image": "scroll_back.png",
+      "content": "Ask the group chat what it means",
+      "short": "Ask the group chat"
+    },
+    {
+      "image": "post_for_them.png",
+      "content": "Scroll back through the whole thread",
+      "short": "Scroll it back"
+    },
+    {
+      "image": "something_else.png",
+      "content": "Forward it to someone else",
+      "short": "Forward it"
+    },
+    {
+      "image": "ask_the_gc.png",
+      "content": "Post something and see who looks",
+      "short": "Post something"
+    },
+    {
+      "image": "phone_glance.png",
+      "content": "Glance at your phone again",
+      "short": "Glance again"
+    },
+    {
+      "image": "mute.png",
+      "content": "Mute the conversation",
+      "short": "Mute it"
+    },
+    {
+      "image": "not_bothered.png",
+      "content": "Flick the notification away",
+      "short": "Flick it away"
+    },
+    {
+      "image": "probably_busy.png",
+      "content": "Decide they're probably just busy",
+      "short": "Probably busy"
+    },
+    {
+      "image": "mildly_annoying_hd.png",
+      "content": "Decide it's mildly annoying, no more",
+      "short": "Mildly annoying"
+    },
+    {
+      "image": "dont_know_yet_hd.png",
+      "content": "Admit you don't know yet",
+      "short": "Don't know yet"
+    },
+    {
+      "image": "reply_at_3pm.png",
+      "content": "Sit on it and reply hours later",
+      "short": "Reply later"
+    },
+    {
+      "image": "in_person.png",
+      "content": "Ask to talk about it over coffee",
+      "short": "Talk in person"
+    },
+    {
+      "image": "doorbell.png",
+      "content": "Go round and ring the bell",
+      "short": "Ring the bell",
+      "reaction": {
+        "image": "Slaten.png",
+        "text": "At 2am. Absolutely feral.",
+        "bubble": "top",
+        "sound": "audio/reaction_doorbell.mp3"
+      }
+    },
+    {
+      "image": "other_plans.png",
+      "content": "Make other plans for the evening",
+      "short": "Other plans"
+    },
+    {
+      "image": "carry_on_hd.png",
+      "content": "Get on with your own work",
+      "short": "Carry on"
+    },
+    {
+      "image": "play_button.png",
+      "content": "Put something on and actually watch it",
+      "short": "Put something on"
+    },
+    {
+      "image": "better_alone_hd.png",
+      "content": "Sit with it on your own for a while",
+      "short": "Sit with it"
+    },
+    {
+      "image": "sleep_fine_hd.png",
+      "content": "Go to bed and sleep fine",
+      "short": "Sleep fine",
+      "reaction": {
+        "sprite": {
+          "atlas": "sprite-scorny-kiss/sprite.json"
+        },
+        "text": "Sure you will.",
+        "bubble": "bottom",
+        "sound": "audio/reaction_sleep_fine_hd.mp3"
+      }
+    },
+    {
+      "image": "pizza_slice_hd.png",
+      "content": "Order a pizza",
+      "short": "Pizza"
+    },
+    {
+      "image": "wings.png",
+      "content": "Order wings as well",
+      "short": "Wings"
+    },
+    {
+      "image": "corner_shop_bag.png",
+      "content": "Walk to the corner shop",
+      "short": "Corner shop"
+    },
+    {
+      "image": "sparkling_water.png",
+      "content": "Open a sparkling water, change the subject",
+      "short": "Sparkling water"
+    }
+  ],
+  "reactionDefaults": {
+    "duration": 2.8,
+    "motion": "float",
+    "bubble": "top"
+  },
+  "audio": {
+    "backgroundMusic": "background-music.mp3",
+    "musicVolume": 0.1,
+    "effectsVolume": 0.45,
+    "voiceVolume": 1.0,
+    "musicDuck": 0.35
+  }
 }

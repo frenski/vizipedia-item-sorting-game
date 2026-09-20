@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css?v=24">
+  <link rel="stylesheet" href="css/main.css?v=34">
 
   <!-- Boot cover. The game's title, colours and art all live in a JSON file
        that can only be fetched after the page has painted, so this sits over
@@ -27,6 +27,10 @@
       transition: opacity .28s ease;
     }
     #boot.boot-done { opacity: 0; pointer-events: none; }
+    #boot .boot-inner {
+      display: flex; flex-direction: column; align-items: center; gap: 18px;
+      padding: 0 24px;
+    }
     #boot .boot-ring {
       width: 44px; height: 44px; border-radius: 50%;
       border: 4px solid rgba(255,255,255,.16);
@@ -35,11 +39,42 @@
     }
     @keyframes boot-spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { #boot .boot-ring { animation-duration: 2.4s; } }
+    /* Progress, so a preload of every image, sprite sheet and voice line is
+       a wait with a shape to it rather than a blank screen. */
+    #bootBar {
+      width: min(62vw, 260px); height: 8px;
+      background: rgba(255,255,255,.14);
+      overflow: hidden;
+    }
+    #bootBar i { display: block; width: 0; height: 100%; background: #ffc533; transition: width .18s ease; }
+    #bootPct {
+      font: 700 12px/1 ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing: .14em; color: rgba(255,255,255,.62);
+    }
+    /* The gate that lets the intro have sound: browsers hold audio until the
+       player has interacted, so the sequence starts from a tap. */
+    #bootBegin {
+      display: none;
+      padding: 13px 30px;
+      border: none;
+      background: #ffc533; color: #1a1305;
+      font: 800 13px/1 ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing: .16em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    #bootBegin:hover { filter: brightness(1.08); }
   </style>
 </head>
 <body>
 
-  <div id="boot" role="status" aria-label="Loading"><div class="boot-ring"></div></div>
+  <div id="boot" role="status" aria-label="Loading">
+    <div class="boot-inner">
+      <div class="boot-ring"></div>
+      <div id="bootBar"><i></i></div>
+      <div id="bootPct">0%</div>
+      <button id="bootBegin">Begin</button>
+    </div>
+  </div>
 
   <div id="loading">Loading game…</div>
 
@@ -85,7 +120,7 @@
   <!-- ?v= is a cache buster: Apache sends no Cache-Control for these files, so
        a plain reload can keep running a stale build. Bump it when js/ or css/
        changes. -->
-  <script src="js/ui-texts.js?v=24"></script>
-  <script src="js/main.js?v=24"></script>
+  <script src="js/ui-texts.js?v=34"></script>
+  <script src="js/main.js?v=34"></script>
 </body>
 </html>

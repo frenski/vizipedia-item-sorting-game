@@ -218,6 +218,62 @@ evenly on `"card"`.
 Images are drawn at about 270px at most, so there is nothing to gain from
 source art much above 600px square.
 
+### Reactions
+
+An item can carry a `reaction`: take it and the conveyor **stops**, someone
+pops up with a speech bubble for a couple of seconds, then the flow picks up
+where it left off. Items without one never interrupt anything.
+
+```json
+{
+  "image": "double_text.png",
+  "content": "Send a second message on top",
+  "short": "Double text",
+  "reaction": {
+    "text": "Two messages. Now they definitely know.",
+    "sprite": { "atlas": "sprite-scupid-love/sprite.json" },
+    "side": "right"
+  }
+}
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `text` | — | the line in the bubble; **a reaction without one never plays** |
+| `sprite` | — | an atlas or strip, exactly as the intro takes it |
+| `image` | — | a still, used when there is no `sprite` |
+| `motion` | `float` | `pulse` \| `float` \| `spin` \| `shake` \| `none`, as the intro |
+| `bubble` | `top` | the bubble sits `top` or `bottom` of the speaker |
+| `duration` | `2.6` | seconds on screen, entrance and exit included |
+| `sound` | — | played when it starts |
+
+Shared settings go in a top-level `reactionDefaults` block with the same
+keys — a single character for every reaction, say — and each item overrides
+what it needs.
+
+**It fires after the card lands in the bag**, not at the flick: the pick is
+seen to happen before anyone remarks on it. If the bag was full, the swap is
+resolved first and the reaction follows the item actually going in — so it
+never talks over a decision the player is still making.
+
+The dim is partial, so the bag and the lane stay legible; this is a beat in
+the flow, not a modal. The character rises with a small overshoot and the
+bubble arrives a beat later, which reads as them speaking rather than a
+label appearing. A tap, Space, Enter or Escape jumps to the exit rather than
+cutting, so it never flickers.
+
+The speaker is centred and the bubble stacks over or under them, tail
+pointing their way. The bubble is measured first and the speaker takes the
+height that is left, so a long line shrinks the speaker rather than pushing
+either of them out of the lane.
+
+The bubble's corners come from the theme: `--game-bubble-radius` and
+`--game-bubble-step`. With a step above 0 each corner is cut as a staircase
+of whole blocks instead of an arc — the canvas equivalent of the stylesheet's
+`clip-path`, which canvas has no access to — so a pixel-art skin squares the
+bubble off without touching JavaScript. `neon-pixel` uses a 4px step; the
+default theme leaves it at 0 and keeps the smooth curve.
+
 ### Scoring
 
 ```json
@@ -532,7 +588,8 @@ whose artwork is pixel art.
   "trayText": "#ffffff", "danger": "#ff4d4d",
   "fontBody": "'Nunito', Arial, sans-serif",
   "fontDisplay": "'Nunito', Arial, sans-serif",
-  "cardRadius": 20, "pixelated": false
+  "cardRadius": 20, "bubbleRadius": 16, "bubbleStep": 0,
+  "pixelated": false
 }
 ```
 
@@ -541,28 +598,96 @@ With no `backgroundImage` the two `background` colours make a gradient.
 three are ignored once `tray.image` is set. The swap grid is three columns
 wide, dropping to two on a narrow phone or when `tray.capacity` is 4 or less.
 
-`fontBody` / `fontDisplay` set the canvas type (captions and toasts; titles
+`bubbleRadius` / `bubbleStep` shape the speech bubble (a step above 0 cuts
+its corners into a staircase of blocks). `fontBody` / `fontDisplay` set the
+canvas type (captions and toasts; titles
 and the bag label). `cardRadius` is the plate's corner radius, `pixelated`
 turns off image smoothing. All five theme entries below are also settable
 from a skin as `--game-*` properties.
 
 ## Audio
 
-Paths are relative to `assets/<gameId>/`. All optional.
+Paths are relative to `assets/<gameId>/`. All of it is optional.
 
 ```json
 "audio": {
-  "backgroundMusic": "../common/bgmusic5.mp3",
-  "takeSound": "take.mp3",
-  "passSound": "whoosh.mp3",
-  "correctSound": "../common/correct.mp3",
-  "wrongSound": "../common/wrong.mp3",
-  "lifeLostSound": "ouch.mp3",
-  "discardSound": "drop.mp3",
-  "musicVolume": 0.4,
-  "effectsVolume": 0.5
+  "backgroundMusic": "background-music.mp3",
+  "musicVolume": 0.28,
+  "effectsVolume": 0.5,
+  "voiceVolume": 1.0
 }
 ```
+
+### Effects come from a synth
+
+The short cues — `click`, `take`, `correct`, `pass`, `wrong`, `life`,
+`discard`, `full` — are **synthesised, not loaded**, so a game only has to
+ship the audio that carries meaning and still gets a pickup blip, a
+wrong-answer buzz and a UI click. Square waves, which sit with pixel art
+better than sampled clicks would.
+
+Naming a file overrides the synth for that one cue, and the rest stay
+procedural:
+
+```json
+"audio": { "wrongSound": "ouch.mp3", "takeSound": "pick.mp3" }
+```
+
+The keys are `takeSound`, `passSound`, `correctSound`, `wrongSound`,
+`lifeLostSound` and `discardSound`. `effectsVolume` sets the level for both
+files and synth.
+
+### Voice
+
+Three places take a voice line, all just a `sound` path:
+
+| Where | Key |
+|---|---|
+| an intro scene | `intro.scenes[n].sound` |
+| a reaction | `items[n].reaction.sound` |
+| an item appearing | `items[n].sound` |
+
+`voiceVolume` levels these separately from the effects, so a line can sit
+above the blips without turning everything up.
+
+**A scene or reaction is never cut off mid-line.** Both measure their audio
+at load and hold for at least as long as it runs, plus a breath — the written
+`duration` becomes a floor rather than a cap. A 4.2s line in a 3.6s scene
+stretches the scene to 4.9s; a shorter line leaves the written timing alone.
+So the script can be timed by eye first and the VO dropped in afterwards
+without re-timing anything.
+
+### Music
+
+One track plays from the start of the intro, through the start card and into
+the round, rather than restarting at kickoff.
+
+`musicVolume` sets its level and `musicDuck` (default `0.3`) is the fraction
+it drops to **under a voice line**, lifting back when the line ends. Music
+that sits fine on its own still buries dialogue, and turning it down far
+enough to never do that leaves it inaudible the rest of the time.
+
+Muting **pauses**; unmuting picks up where it left off.
+
+## Preloading
+
+Everything a round needs is fetched before it starts — item art, tray and
+background images, every sprite sheet and its atlas, and every voice line
+buffered to `canplaythrough` so a line never stalls on its first play. The
+boot cover shows a progress bar and a percentage. Music is the one exception:
+a minutes-long track streams, and has no business holding up a loading bar.
+
+### Why an intro with voice starts from a tap
+
+Browsers refuse audio until the player has interacted. A voice line fired on
+page load is rejected once and never heard — while looping music, retried on
+the first touch, comes through fine. That asymmetry is exactly what a silent
+intro over working music looks like.
+
+So when an intro has any `sound` on a scene (or `intro.music`), the preloader
+ends with a **Begin** button and the sequence starts from that tap, inside
+the gesture, where audio is allowed. A game with no intro voice skips the
+gate entirely and opens on the start card as before.
 
 ## Other keys
 
